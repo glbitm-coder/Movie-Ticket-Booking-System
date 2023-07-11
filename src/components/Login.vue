@@ -166,6 +166,7 @@ export default{
                     this.$store.commit('setAuthentication', { isAuthenticated: true });
                     this.$store.commit('setToken', { access_token: data.access_token });
                     this.$store.commit('setExpiryTime', { expiryTime: data.expires });
+                    this.$store.commit('setRole', { userRole: this.selectedRole});
                     this.$router.push('/dashboard')
                 } else{
                     this.serverErrorMessages = data.error_messages;

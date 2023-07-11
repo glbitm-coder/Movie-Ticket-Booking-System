@@ -1,7 +1,8 @@
 import SignUp from './components/SignUp.vue'
 import Home from './components/Home.vue'
 import Login from './components/Login.vue'
-import Dashboard from './components/Dashboard.vue'
+import AdminDashboard from './components/AdminDashboard.vue'
+import UserDashboard from './components/UserDashboard.vue'
 import store from './vuex';
 import VueRouter from 'vue-router'
 
@@ -28,12 +29,20 @@ const routes = [
         }
     },
     {
-        name : 'Dashboard',
-        component : Dashboard,
-        path : '/dashboard',
+        name : 'AdminDashboard',
+        component : AdminDashboard,
+        path : '/admin/dashboard',
         meta: {
             requiresAuth: true
         }
+    },
+    {
+      name : 'UserDashboard',
+      component : UserDashboard,
+      path : '/user/dashboard',
+      meta: {
+        requiresAuth: true
+      }
     }
 ];
 

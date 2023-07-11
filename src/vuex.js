@@ -8,7 +8,8 @@ const store = new Vuex.Store({
       isAuthenticated: false,
       access_token: localStorage.getItem('access_token') || null,
       expiryTime: localStorage.getItem('expiryTine'),
-      notification: null
+      notification: null,
+      userRole: null
     },
     mutations: {
       setAuthentication(state, payload) {
@@ -27,6 +28,9 @@ const store = new Vuex.Store({
       },
       clearNotification(state) {
         state.notification = null;
+      },
+      setRole(state, payload){
+        state.userRole = payload.userRole;
       }
     }
   });

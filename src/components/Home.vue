@@ -8,7 +8,7 @@
             <div id="home-navbar-end" class="navbar-nav">
                 <!-- <a class="nav-item nav-link"><router-link to="/feed">Feed</router-link></a> -->
                 <template v-if="isAuthenticated">
-                    <a id="home-dashboard" class="nav-item nav-link" @click="handleDashboardClick"><router-link to="/dashboard">Dashboard</router-link></a>
+                    <a id="home-dashboard" class="nav-item nav-link" @click="handleDashboardClick"><router-link :to="dashboardLink">Dashboard</router-link></a>
                     <div class="nav-item nav-link"  @click="logout" >Logout</div>
                 </template>
                 <template v-else>
@@ -55,6 +55,18 @@ export default{
         isSignUpPage(){
             // Check if the current route is the sign up page
             return this.$route.path === '/signup';
+        },
+        dashboardLink() {
+            const role = this.$store.state.userRole;
+            if (role === 'admin') {
+                return '/admin/dashboard';
+            }
+            else if(role === 'user'){
+                return '/user/dashboard';
+            }
+            else{
+                return '/';
+            }
         }
     },
     methods:{

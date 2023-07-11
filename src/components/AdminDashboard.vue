@@ -56,7 +56,7 @@
 import Home from './Home.vue'
 
 export default {
-  name: 'Dashboard',
+  name: 'AdminDashboard',
   components: {
     Home
   },
