@@ -33,7 +33,8 @@ const routes = [
         component : AdminDashboard,
         path : '/admin/dashboard',
         meta: {
-            requiresAuth: true
+            requiresAuth: true,
+            requiresRole: 'admin'
         }
     },
     {
@@ -41,7 +42,8 @@ const routes = [
       component : UserDashboard,
       path : '/user/dashboard',
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        requiresRole: 'user'
       }
     }
 ];
@@ -55,11 +57,11 @@ router.beforeEach(async (to, from, next) => {
     const isAuthenticated = store.state.isAuthenticated;
     const requiresAuth = to.meta.requiresAuth;
     const requiresGuest = to.meta.requiresGuest;
+    const role = store.state.userRole;
+    const requiredRole = to.meta.requiredRole;
 
-    if (requiresAuth && !isAuthenticated) {
+    if ((requiresAuth && !isAuthenticated) || (requiresGuest && isAuthenticated)) {
       next('/');
-    } else if (requiresGuest && isAuthenticated) {
-      next('/dashboard');
     } else {
       const accessToken = store.state.access_token;
       const expiryTime = store.state.expiryTime;
@@ -75,7 +77,27 @@ router.beforeEach(async (to, from, next) => {
           store.commit('setAuthentication', { isAuthenticated: true });
           store.commit('setToken', { access_token: accessToken });
           store.commit('setExpiryTime', { expiryTime : expiryTime })
-          next();
+
+          if(requiredRole)
+          {
+            if(role !== requiredRole){
+              // Show popup or notification indicating unauthorized access
+              store.commit('setNotification', {
+                variant: 'error',
+                message: 'You are not authorized to access this page.'
+              });
+              setTimeout(() => {
+                store.commit('clearNotification');
+              }, 3000);
+              next('/');
+            }
+            else{
+              next();
+            }
+          }
+          else{
+            next();
+          }
         }
       } else {
         next();

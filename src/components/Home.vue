@@ -99,6 +99,7 @@ export default{
                 this.$store.commit('setAuthentication', { isAuthenticated: false });
                 this.$store.commit('setToken', { access_token: null });
                 this.$store.commit('setExpiryTime', { expiryTime: null });
+                this.$store.commit('setRole', { userRole: null });
                 
                 if (result.status === 200) {
                     this.$store.commit('setNotification', { variant: 'success', message: data.message });
