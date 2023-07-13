@@ -35,7 +35,7 @@ class LoginAPI(Resource):
             if check_password_hash(user.stored_password, input_password) and user.role_id==role.id:
 
                 # Generate the access token with a 30-minute expiration time
-                expires = datetime.timedelta(minutes=2)
+                expires = datetime.timedelta(minutes=60)
                 access_token = create_access_token(identity=user.id, expires_delta=expires)
                 
                 # Get the current time and calculate the expiry time

@@ -178,7 +178,7 @@ export default {
         }
       }
     },
-    submitForm()
+    async submitForm()
     {
       this.isSubmitButtonClicked = true;
       this.validation();
@@ -186,11 +186,31 @@ export default {
           return;
       }
 
+        // Create a new FormData object
+      const formData = new FormData();
+      formData.append('input_name', this.name);
+      formData.append('input_place', this.place);
+      formData.append('input_capacity', this.capacity);
+      formData.append('input_image', this.image);
       console.log(this.place);
       console.log(this.name);
       console.log(this.capacity);
       console.log(this.image);
+      const response = await fetch("http://127.0.0.1:5000/theatre-api", {
+        method: "POST",
+        headers : {
+            Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+            'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      }).then(async result => {
+        const data = await result.json();
+        this.$store.commit('setAuthentication', { isAuthenticated: false });
+        this.$store.commit('setToken', { access_token: null });
+        this.$store.commit('setExpiryTime', { expiryTime: null });
+        this.$store.commit('setRole', { userRole: null });
       
+      }) 
     }
   }
 }
