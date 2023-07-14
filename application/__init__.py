@@ -14,12 +14,13 @@ DB_NAME = "ticket_show.db"
 
 def create_app():
     app = Flask(__name__)
-    cors = CORS(app, origins=['http://localhost:8080'])
+    CORS(app, origins=['http://localhost:8080'])
     
             
     app.config['SECRET_KEY'] = "gveghwijlmrkb"
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     app.config['JWT_SECRET_KEY'] = 'something-is-super-secret'  # Change this!
+    app.config['CORS_SUPPORTS_CREDENTIALS'] = True
     db.init_app(app)
     api = Api(app)
     
@@ -46,7 +47,7 @@ def create_app():
     api.add_resource(LoginAPI, "/login")
     api.add_resource(SignUpAPI, "/signup")
     api.add_resource(RoleAPI, "/api/roles")
-    api.add_resource(TheatreAPI, "/theatre-api/")
+    api.add_resource(TheatreAPI, "/theatre_api")
     # api.add_resource(UserAPI, "/api/user/<int:user_id>")
     # api.add_resource(BlogAPI, "/api/user/<int:user_id>/blog", "/api/user/<int:user_id>/blog/<int:blog_id>", "/api/blog/<int:blog_id>")
     

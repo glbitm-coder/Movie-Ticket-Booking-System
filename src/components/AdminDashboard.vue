@@ -35,7 +35,7 @@
         </div>
         <div class="form-group">
           <label for="name">Name:</label>
-          <input type="text" id="name" class="form-control" v-model="name" />
+          <input type="text" id="input_name" class="form-control" v-model="name" />
         </div>
         <div class="form-group">
           <label for="image">Image:</label>
@@ -100,22 +100,36 @@ export default {
     clearNotification() {
       this.$store.commit('clearNotification');
     },
-    isTokenExpired(expiryTime) {
-      if (expiryTime) {
-        return Date.now() > new Date(expiryTime);
-      }
-      return false;
+    isTokenExpired(expiryTime, isAuthenticated) {
+        if (isAuthenticated) {
+            if (expiryTime) {
+                return Date.now() > new Date(expiryTime);
+            } else {
+                return true;
+            }
+        }
+        return false;
     },
     redirectIfTokenExpired() {
-      const expiryTime = this.$store.state.expiryTime;
-      if (this.isTokenExpired(expiryTime)) {
-        // Token has expired, redirect to home page
-        this.$store.commit('setAuthentication', { isAuthenticated: false });
-        this.$store.commit('setToken', { access_token: null });
-        this.$store.commit('setExpiryTime', { expiryTime: null });
-        this.$store.commit('setNotification', { variant: 'error', message: 'Your session is expired. Login again!!' });
-        this.$router.push('/');
-      }
+        const expiryTime = this.$store.state.expiryTime;
+        const isAuthenticated = this.$store.state.isAuthenticated;
+        if (this.isTokenExpired(expiryTime, isAuthenticated)) {
+            // Token has expired, redirect to home page
+            this.$store.commit('setAuthentication', {
+                isAuthenticated: false
+            });
+            this.$store.commit('setToken', {
+                access_token: null
+            });
+            this.$store.commit('setExpiryTime', {
+                expiryTime: null
+            });
+            this.$store.commit('setNotification', {
+                variant: 'error',
+                message: 'Your session is expired. Login again!!'
+            });
+            this.$router.push('/');
+        }
     },
     handleInputChange(fieldName, fieldValue){
       let message = '';
@@ -186,17 +200,14 @@ export default {
           return;
       }
 
-        // Create a new FormData object
+      // Create a FormData object
       const formData = new FormData();
       formData.append('input_name', this.name);
+      console.log(this.name);
       formData.append('input_place', this.place);
       formData.append('input_capacity', this.capacity);
       formData.append('input_image', this.image);
-      console.log(this.place);
-      console.log(this.name);
-      console.log(this.capacity);
-      console.log(this.image);
-      const response = await fetch("http://127.0.0.1:5000/theatre-api", {
+      const response = await fetch("http://127.0.0.1:5000/theatre_api", {
         method: "POST",
         headers : {
             Authorization: 'Bearer ' + localStorage.getItem('access_token'),
@@ -205,10 +216,7 @@ export default {
         body: formData,
       }).then(async result => {
         const data = await result.json();
-        this.$store.commit('setAuthentication', { isAuthenticated: false });
-        this.$store.commit('setToken', { access_token: null });
-        this.$store.commit('setExpiryTime', { expiryTime: null });
-        this.$store.commit('setRole', { userRole: null });
+        console.log(data);
       
       }) 
     }

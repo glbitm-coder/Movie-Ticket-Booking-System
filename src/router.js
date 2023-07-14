@@ -67,13 +67,7 @@ router.beforeEach(async (to, from, next) => {
       const expiryTime = store.state.expiryTime;
   
       if (requiresAuth && accessToken && expiryTime) {
-        const currentTime = Date.now();
-        const tokenExpired = currentTime > new Date(expiryTime);
-  
-        if (tokenExpired) {
-          await store.dispatch('logout');
-          next('/');
-        } else {
+        
           store.commit('setAuthentication', { isAuthenticated: true });
           store.commit('setToken', { access_token: accessToken });
           store.commit('setExpiryTime', { expiryTime : expiryTime })
@@ -98,8 +92,7 @@ router.beforeEach(async (to, from, next) => {
           else{
             next();
           }
-        }
-      } else {
+        } else {
         next();
       }
     }

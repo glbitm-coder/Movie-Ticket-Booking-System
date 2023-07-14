@@ -58,10 +58,10 @@ export default{
         },
         dashboardLink() {
             const role = this.$store.state.userRole;
-            if (role === 'admin') {
+            if (role === 'Admin') {
                 return '/admin/dashboard';
             }
-            else if(role === 'user'){
+            else if(role === 'User'){
                 return '/user/dashboard';
             }
             else{
@@ -78,6 +78,18 @@ export default{
             if (this.isAuthenticated && this.isTokenExpired(expiryTime)) {
                 // Token has expired, perform logout
                 this.logout()
+            }
+            else{
+            const role = this.$store.state.userRole;
+            if (role === 'Admin') {
+                return this.$router.push('/admin/dashboard');
+            }
+            else if(role === 'User'){
+                return this.$router.push('/user/dashboard');
+            }
+            else{
+                return this.$router.push('/');
+            }
             }
         },
         isTokenExpired(expiryTime) {
