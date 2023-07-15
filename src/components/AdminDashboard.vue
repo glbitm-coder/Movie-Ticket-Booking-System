@@ -207,17 +207,22 @@ export default {
       formData.append('input_place', this.place);
       formData.append('input_capacity', this.capacity);
       formData.append('input_image', this.image);
+      
       const response = await fetch("http://127.0.0.1:5000/theatre_api", {
         method: "POST",
         headers : {
             Authorization: 'Bearer ' + localStorage.getItem('access_token'),
-            'Content-Type': 'multipart/form-data',
         },
         body: formData,
       }).then(async result => {
         const data = await result.json();
-        console.log(data);
-      
+        if (result.ok){
+          this.$store.commit('setNotification', { variant: 'success', message: data.message });
+        }
+        else{
+          this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
+        }
+        this.closeModal();
       }) 
     }
   }

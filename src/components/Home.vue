@@ -121,7 +121,7 @@ export default{
 
                 await new Promise(resolve => setTimeout(resolve, 1000)); // Delay for 1 second (adjust as needed)
 
-                window.location.href = '/?redirect=%2F'
+                window.location.href = '/'
             })
         }
     }
