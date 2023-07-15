@@ -11,10 +11,13 @@ from ..validation import BusinessValidationError
 from ..Models.user import User
 from ..Models.role import Role
 from werkzeug.security import check_password_hash
-from flask_restful import Resource
+from flask_restful import Resource, fields, marshal_with
 from ..Parser.theatreParser import theatre_parser
 
+
+
 class TheatreAPI(Resource):
+
     @cross_origin(origin="localhost:8080")
     @jwt_required()
     def post(self):
@@ -62,3 +65,23 @@ class TheatreAPI(Resource):
         return make_response(jsonify({
                     "message" : "Theatre created successfully"
                 }), 201)
+    
+    @jwt_required()
+    def get(self):
+        theatres = Theatre.query.all()
+        errorMessages = []
+
+        theatre_list = []
+        for theatre in theatres:
+            theatre_data = {
+            "id": theatre.id,
+            "name": theatre.storedName,
+            # Add more fields as needed
+            }
+            theatre_list.append(theatre_data)
+
+        if theatres is None:
+            errorMessages.append("There is no theatre")
+            raise BusinessValidationError(error_messages=errorMessages)
+        else:
+            return make_response(jsonify({"theatres": theatre_list}), 200)

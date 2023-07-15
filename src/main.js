@@ -14,6 +14,7 @@ Vue.use(VueRouter);
 // Check for the token and expiry time in local storage
 const access_token = localStorage.getItem('access_token');
 const expiryTime = localStorage.getItem('expiryTime');
+const selectedRole = localStorage.getItem('selectedRole');
 
 if (access_token && expiryTime && Date.now() > new Date(expiryTime)) {
   // Token has expired, perform logout
@@ -25,6 +26,8 @@ if (access_token && expiryTime && Date.now() > new Date(expiryTime)) {
   // If the token exists and is not expired, update the Vuex store with the authentication status
   store.commit('setAuthentication', { isAuthenticated: true });
   store.commit('setToken', { access_token });
+  store.commit('setExpiryTime', { expiryTime });
+  store.commit('setRole', { userRole: selectedRole });
 }
 else{
   store.commit('setAuthentication', { isAuthenticated: false});

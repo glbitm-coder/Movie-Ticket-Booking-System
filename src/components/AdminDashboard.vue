@@ -49,6 +49,22 @@
     </b-modal>
     <Notification v-if="$store.state.notification" :variant="$store.state.notification.variant" 
         :message="$store.state.notification.message" @clear-notification="clearNotification"/>
+
+
+    <div>
+      <div class="row mb-4" v-for="(row, index) in rows" :key="index">
+        <div class="col-4" v-for="theater in row" :key="theater.id">
+          <b-card title="theater.name">
+            <b-card-text>
+              Hello
+            </b-card-text>
+            <template #footer>
+              <small class="text-muted">Last updated 3 mins ago</small>
+            </template>
+          </b-card>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -70,14 +86,23 @@ export default {
       errorMessages: [],
       serverErrorMessages: [],
       isSubmitButtonClicked: false,
-      notification: null
+      notification: null,
+      theaters: [],
+      cardsPerRow: 3
     }
   },
   mounted() {
+    this.fetchTheaters();
     document.addEventListener('click', this.redirectIfTokenExpired);
   },
   beforeUnmount() {
     document.removeEventListener('click', this.redirectIfTokenExpired);
+  },
+  computed:{
+    rows() {
+      // Slice the theaters array into chunks based on cardsPerRow
+      return this.chunkArray(this.theaters, this.cardsPerRow);
+    }
   },
   watch: {
     place(value) {
@@ -97,6 +122,18 @@ export default {
     }
   },
   methods: {
+    getColClass(theatersCount) {
+    const colSize = Math.floor(12 / theatersCount);
+    return `col-${colSize}`;
+  },
+    chunkArray(array, size) {
+      // Helper function to split an array into chunks of given size
+      const result = [];
+      for (let i = 0; i < array.length; i += size) {
+        result.push(array.slice(i, i + size));
+      }
+      return result;
+    },
     clearNotification() {
       this.$store.commit('clearNotification');
     },
@@ -218,11 +255,32 @@ export default {
         const data = await result.json();
         if (result.ok){
           this.$store.commit('setNotification', { variant: 'success', message: data.message });
+          this.fetchTheaters();
         }
         else{
           this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
         }
         this.closeModal();
+      }) 
+    },
+    async fetchTheaters() {
+      const response = await fetch('http://127.0.0.1:5000/theatre_api', {
+        method: "GET",
+        headers : {
+          Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+        }
+      }).then(async result => {
+        const data = await result.json();
+        if (result.ok){
+          this.theaters = data.theatres
+        }
+        else if(result.status === 409)
+        {
+          
+        }
+        else{
+          this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
+        }
       }) 
     }
   }

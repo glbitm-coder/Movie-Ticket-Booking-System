@@ -31,6 +31,7 @@ const store = new Vuex.Store({
       },
       setRole(state, payload){
         state.userRole = payload.userRole;
+        localStorage.setItem('selectedRole', payload.userRole);
       }
     }
   });
