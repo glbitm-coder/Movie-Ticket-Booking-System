@@ -1,11 +1,11 @@
 <template>
   <div>
     <Home/>
-    <div class="circle-container">
-      <div class="circle" @click="openModal">
-        <div class="plus-container">
-          <div class="horizontal-plus"></div>
-          <div class="vertical-plus"></div>
+    <div class="theatre-circle-container">
+      <div class="theatre-circle" @click="openModal">
+        <div class="theatre-plus-container">
+          <div class="theatre-horizontal-plus"></div>
+          <div class="theatre-vertical-plus"></div>
         </div>
       </div>
     </div>
@@ -53,10 +53,50 @@
 
     <div>
       <div class="row mb-4" v-for="(row, index) in rows" :key="index">
-        <div class="col-4" v-for="theater in row" :key="theater.id">
-          <b-card title="theater.name">
+        <div class="col-4" v-for="theatre in row" :key="theatre.id">
+          <b-card :header="theatre.name" header-tag="header" bg-variant="secondary" text-variant="white">
             <b-card-text>
-              Hello
+              <div class="d-flex justify-content-between">
+                <div>
+                  <!-- Edit and delete buttons for theatres -->
+                  <b-btn class="mr-2" variant="primary" @click="editTheatre(theatre.id)">Edit Theatre</b-btn>
+                  <b-btn variant="danger" @click="deleteTheatre(theatre.id)">Delete Theatre</b-btn>
+                </div>
+                <!-- <div>
+                  Plus sign to add a show
+                  <div class="show-circle show-plus-container" @click="addShow(theatre.id)">
+                    <div class="show-horizontal-plus"></div>
+                    <div class="show-vertical-plus"></div>
+                  </div>
+                </div> -->
+              </div>
+              <Show/>
+              <!-- Shows box for the theatre -->
+              <!-- <div class="shows-box">
+                <div v-for="show in theatre.shows" :key="show.id" class="show-item">
+                  <div class="show-actions">
+                    Actions dropdown for each show
+                    <b-dropdown variant="secondary" class="mr-2">
+                      <template #button-content>
+                        Actions
+                      </template>
+                      <b-dropdown-item>Edit Show</b-dropdown-item>
+                      <b-dropdown-item>Delete Show</b-dropdown-item>
+                    </b-dropdown>
+                  </div>
+                  <div class="show-details">
+                    Show details
+                  </div>
+                </div>
+                <div class="theatre-circle-container">
+                  <div class="theatre-circle" @click="openModal">
+                    <div class="theatre-plus-container">
+                      <div class="theatre-horizontal-plus"></div>
+                      <div class="theatre-vertical-plus"></div>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
             </b-card-text>
             <template #footer>
               <small class="text-muted">Last updated 3 mins ago</small>
@@ -70,11 +110,11 @@
 
 <script>
 import Home from './Home.vue'
-
+import Show from './Show.vue'
 export default {
   name: 'AdminDashboard',
   components: {
-    Home
+    Home,Show
   },
   data() {
     return {
@@ -87,12 +127,12 @@ export default {
       serverErrorMessages: [],
       isSubmitButtonClicked: false,
       notification: null,
-      theaters: [],
+      theatres: [],
       cardsPerRow: 3
     }
   },
   mounted() {
-    this.fetchTheaters();
+    this.fetchTheatres();
     document.addEventListener('click', this.redirectIfTokenExpired);
   },
   beforeUnmount() {
@@ -100,8 +140,8 @@ export default {
   },
   computed:{
     rows() {
-      // Slice the theaters array into chunks based on cardsPerRow
-      return this.chunkArray(this.theaters, this.cardsPerRow);
+      // Slice the theatres array into chunks based on cardsPerRow
+      return this.chunkArray(this.theatres, this.cardsPerRow);
     }
   },
   watch: {
@@ -122,8 +162,8 @@ export default {
     }
   },
   methods: {
-    getColClass(theatersCount) {
-    const colSize = Math.floor(12 / theatersCount);
+    getColClass(theatresCount) {
+    const colSize = Math.floor(12 / theatresCount);
     return `col-${colSize}`;
   },
     chunkArray(array, size) {
@@ -255,7 +295,7 @@ export default {
         const data = await result.json();
         if (result.ok){
           this.$store.commit('setNotification', { variant: 'success', message: data.message });
-          this.fetchTheaters();
+          this.fetchTheatres();
         }
         else{
           this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
@@ -263,7 +303,7 @@ export default {
         this.closeModal();
       }) 
     },
-    async fetchTheaters() {
+    async fetchTheatres() {
       const response = await fetch('http://127.0.0.1:5000/theatre_api', {
         method: "GET",
         headers : {
@@ -272,7 +312,7 @@ export default {
       }).then(async result => {
         const data = await result.json();
         if (result.ok){
-          this.theaters = data.theatres
+          this.theatres = data.theatres
         }
         else if(result.status === 409)
         {
@@ -288,14 +328,14 @@ export default {
 </script>
 
 <style>
-.circle-container {
+.theatre-circle-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: calc(100vh - 80px);
 }
 
-.circle {
+.theatre-circle, .show-circle {
   position: relative;
   width: 200px;
   height: 200px;
@@ -307,7 +347,7 @@ export default {
   cursor: pointer;
 }
 
-.plus-container {
+.theatre-plus-container, .show-plus-container {
   position: relative;
   width: 60%;
   height: 60%;
@@ -316,20 +356,20 @@ export default {
   align-items: center;
 }
 
-.horizontal-plus,
-.vertical-plus {
+.theatre-horizontal-plus,
+.theatre-vertical-plus {
   position: absolute;
   background-color: #FFFFFF;
 }
 
-.horizontal-plus {
+.theatre-horizontal-plus {
   width: 50%;
   height: 2px;
   top: 50%;
   transform: translateY(-50%);
 }
 
-.vertical-plus {
+.theatre-vertical-plus {
   width: 2px;
   height: 50%;
   left: 50%;
@@ -348,6 +388,40 @@ export default {
   padding: 10px;
   margin: 0;
   list-style-type: none;
+}
+
+.show-plus-container {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 25px;
+  height: 25px;
+  background-color: #e6e6e6;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.show-horizontal-plus,
+.show-vertical-plus {
+  position: absolute;
+  background-color: #d41818;
+}
+
+.show-horizontal-plus {
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+
+.show-vertical-plus {
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
 }
 </style>
 
