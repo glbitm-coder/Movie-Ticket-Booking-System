@@ -187,7 +187,7 @@ export default{
 }
 </script>
 
-<style>
+<style scoped>
 /* Container styles */
 #login-input {
     margin-top: 120px;

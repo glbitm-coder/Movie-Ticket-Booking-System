@@ -227,7 +227,7 @@ export default{
 
  
   
-<style>
+<style scoped>
 /* Container styles */
 #sign-up-input {
     margin-top: 0px;

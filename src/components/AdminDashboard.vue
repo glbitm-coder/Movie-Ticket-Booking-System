@@ -56,47 +56,12 @@
         <div class="col-4" v-for="theatre in row" :key="theatre.id">
           <b-card :header="theatre.name" header-tag="header" bg-variant="secondary" text-variant="white">
             <b-card-text>
+              <Show :theatre="theatre" @add-show="addShow" />
               <div class="d-flex justify-content-between">
-                <div>
                   <!-- Edit and delete buttons for theatres -->
-                  <b-btn class="mr-2" variant="primary" @click="editTheatre(theatre.id)">Edit Theatre</b-btn>
+                  <b-btn  variant="primary" @click="editTheatre(theatre.id)">Edit Theatre</b-btn>
                   <b-btn variant="danger" @click="deleteTheatre(theatre.id)">Delete Theatre</b-btn>
-                </div>
-                <!-- <div>
-                  Plus sign to add a show
-                  <div class="show-circle show-plus-container" @click="addShow(theatre.id)">
-                    <div class="show-horizontal-plus"></div>
-                    <div class="show-vertical-plus"></div>
-                  </div>
-                </div> -->
               </div>
-              <Show/>
-              <!-- Shows box for the theatre -->
-              <!-- <div class="shows-box">
-                <div v-for="show in theatre.shows" :key="show.id" class="show-item">
-                  <div class="show-actions">
-                    Actions dropdown for each show
-                    <b-dropdown variant="secondary" class="mr-2">
-                      <template #button-content>
-                        Actions
-                      </template>
-                      <b-dropdown-item>Edit Show</b-dropdown-item>
-                      <b-dropdown-item>Delete Show</b-dropdown-item>
-                    </b-dropdown>
-                  </div>
-                  <div class="show-details">
-                    Show details
-                  </div>
-                </div>
-                <div class="theatre-circle-container">
-                  <div class="theatre-circle" @click="openModal">
-                    <div class="theatre-plus-container">
-                      <div class="theatre-horizontal-plus"></div>
-                      <div class="theatre-vertical-plus"></div>
-                    </div>
-                  </div>
-                </div>
-              </div> -->
             </b-card-text>
             <template #footer>
               <small class="text-muted">Last updated 3 mins ago</small>
@@ -327,7 +292,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .theatre-circle-container {
   display: flex;
   justify-content: center;
@@ -390,39 +355,10 @@ export default {
   list-style-type: none;
 }
 
-.show-plus-container {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  width: 25px;
-  height: 25px;
-  background-color: #e6e6e6;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.custom-margin {
+  margin-right: 2%; /* Adjust this value to set the desired distance between the buttons */
 }
 
-.show-horizontal-plus,
-.show-vertical-plus {
-  position: absolute;
-  background-color: #d41818;
-}
-
-.show-horizontal-plus {
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 2px;
-}
-
-.show-vertical-plus {
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-}
 </style>
 
   
