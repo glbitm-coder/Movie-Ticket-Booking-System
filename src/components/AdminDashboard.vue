@@ -56,12 +56,8 @@
         <div class="col-4" v-for="theatre in row" :key="theatre.id">
           <b-card :header="theatre.name" header-tag="header" bg-variant="secondary" text-variant="white">
             <b-card-text>
-              <Show :theatre="theatre" @add-show="addShow" />
-              <div class="d-flex justify-content-between">
-                  <!-- Edit and delete buttons for theatres -->
-                  <b-btn  variant="primary" @click="editTheatre(theatre.id)">Edit Theatre</b-btn>
-                  <b-btn variant="danger" @click="deleteTheatre(theatre.id)">Delete Theatre</b-btn>
-              </div>
+              <!-- <AdminShow :theatre="theatre" @add-show="addShow" /> -->
+              <AdminTheatre :theatre="theatre"/>
             </b-card-text>
             <template #footer>
               <small class="text-muted">Last updated 3 mins ago</small>
@@ -75,11 +71,12 @@
 
 <script>
 import Home from './Home.vue'
-import Show from './Show.vue'
+import AdminShow from './AdminShow.vue'
+import AdminTheatre from './AdminTheatre.vue'
 export default {
   name: 'AdminDashboard',
   components: {
-    Home,Show
+    Home,AdminShow,AdminTheatre
   },
   data() {
     return {
@@ -355,9 +352,6 @@ export default {
   list-style-type: none;
 }
 
-.custom-margin {
-  margin-right: 2%; /* Adjust this value to set the desired distance between the buttons */
-}
 
 </style>
 

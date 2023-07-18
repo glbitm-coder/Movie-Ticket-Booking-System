@@ -31,7 +31,7 @@
 <script>
 
 export default {
-  name: 'Show',
+  name: 'AdminShow',
   props: {
     theatre: {
       type: Object,

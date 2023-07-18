@@ -76,6 +76,9 @@ class TheatreAPI(Resource):
             theatre_data = {
             "id": theatre.id,
             "name": theatre.storedName,
+            "place": theatre.storedPlace,
+            "capacity": theatre.storedCapacity,
+            "image": "./assets/theatre_1_new.png"
             # Add more fields as needed
             }
             theatre_list.append(theatre_data)
@@ -85,3 +88,12 @@ class TheatreAPI(Resource):
             raise BusinessValidationError(error_messages=errorMessages)
         else:
             return make_response(jsonify({"theatres": theatre_list}), 200)
+        
+
+    @jwt_required()
+    def put(self, theatre_id):
+
+        input_name = request.form.get("input_name", None)
+        input_place = request.form.get("input_place", None)
+        input_capacity = request.form.get("input_capacity", None)
+        input_image = request.files.get("input_image", None)
