@@ -73,10 +73,11 @@
 import Home from './Home.vue'
 import AdminShow from './AdminShow.vue'
 import AdminTheatre from './AdminTheatre.vue'
+import Notification from './Notification.vue'
 export default {
   name: 'AdminDashboard',
   components: {
-    Home,AdminShow,AdminTheatre
+    Home, AdminShow, AdminTheatre,Notification
   },
   data() {
     return {
@@ -100,7 +101,7 @@ export default {
   beforeUnmount() {
     document.removeEventListener('click', this.redirectIfTokenExpired);
   },
-  computed:{
+  computed: {
     rows() {
       // Slice the theatres array into chunks based on cardsPerRow
       return this.chunkArray(this.theatres, this.cardsPerRow);
@@ -108,26 +109,29 @@ export default {
   },
   watch: {
     place(value) {
-        this.handleInputChange('Place', value);
-        this.serverErrorMessages = []
+      this.handleInputChange('Place', value);
+      this.serverErrorMessages = []
     },
 
     name(value) {
-        this.handleInputChange('Name', value);
-        this.serverErrorMessages = []
+      this.handleInputChange('Name', value);
+      this.serverErrorMessages = []
 
     },
 
-    capacity(value){
-        this.handleInputChange('Capacity', value);
-        this.serverErrorMessages = []
+    capacity(value) {
+      this.handleInputChange('Capacity', value);
+      this.serverErrorMessages = []
     }
   },
   methods: {
+    clearNotification() {
+            this.$store.commit('clearNotification');
+        },
     getColClass(theatresCount) {
-    const colSize = Math.floor(12 / theatresCount);
-    return `col-${colSize}`;
-  },
+      const colSize = Math.floor(12 / theatresCount);
+      return `col-${colSize}`;
+    },
     chunkArray(array, size) {
       // Helper function to split an array into chunks of given size
       const result = [];
@@ -140,40 +144,40 @@ export default {
       this.$store.commit('clearNotification');
     },
     isTokenExpired(expiryTime, isAuthenticated) {
-        if (isAuthenticated) {
-            if (expiryTime) {
-                return Date.now() > new Date(expiryTime);
-            } else {
-                return true;
-            }
+      if (isAuthenticated) {
+        if (expiryTime) {
+          return Date.now() > new Date(expiryTime);
+        } else {
+          return true;
         }
-        return false;
+      }
+      return false;
     },
     redirectIfTokenExpired() {
-        const expiryTime = this.$store.state.expiryTime;
-        const isAuthenticated = this.$store.state.isAuthenticated;
-        if (this.isTokenExpired(expiryTime, isAuthenticated)) {
-            // Token has expired, redirect to home page
-            this.$store.commit('setAuthentication', {
-                isAuthenticated: false
-            });
-            this.$store.commit('setToken', {
-                access_token: null
-            });
-            this.$store.commit('setExpiryTime', {
-                expiryTime: null
-            });
-            this.$store.commit('setNotification', {
-                variant: 'error',
-                message: 'Your session is expired. Login again!!'
-            });
-            this.$router.push('/');
-        }
+      const expiryTime = this.$store.state.expiryTime;
+      const isAuthenticated = this.$store.state.isAuthenticated;
+      if (this.isTokenExpired(expiryTime, isAuthenticated)) {
+        // Token has expired, redirect to home page
+        this.$store.commit('setAuthentication', {
+          isAuthenticated: false
+        });
+        this.$store.commit('setToken', {
+          access_token: null
+        });
+        this.$store.commit('setExpiryTime', {
+          expiryTime: null
+        });
+        this.$store.commit('setNotification', {
+          variant: 'error',
+          message: 'Your session is expired. Login again!!'
+        });
+        this.$router.push('/');
+      }
     },
-    handleInputChange(fieldName, fieldValue){
+    handleInputChange(fieldName, fieldValue) {
       let message = '';
-          message = fieldName +  ' cannot be empty';
-          this.validateEachEntity(fieldValue, message);
+      message = fieldName + ' cannot be empty';
+      this.validateEachEntity(fieldValue, message);
     },
     openModal() {
       this.showModal = true;
@@ -188,21 +192,21 @@ export default {
       // Handle the image upload here
       this.image = event.target.files[0];
     },
-    validateEachEntity(entityToValidate, message){
-      if(this.errorMessages.includes(message)){
-          let indexOFMessage = this.errorMessages.indexOf(message);
-          this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
-          if(entityToValidate == null || entityToValidate == ''){
-              this.errorMessages.splice(indexOFMessage, 0, message);
-          }
+    validateEachEntity(entityToValidate, message) {
+      if (this.errorMessages.includes(message)) {
+        let indexOFMessage = this.errorMessages.indexOf(message);
+        this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
+        if (entityToValidate == null || entityToValidate == '') {
+          this.errorMessages.splice(indexOFMessage, 0, message);
+        }
       }
-      else{
-          if(entityToValidate == null || entityToValidate == ''){
-              this.errorMessages.push(message);
-          }
+      else {
+        if (entityToValidate == null || entityToValidate == '') {
+          this.errorMessages.push(message);
+        }
       }
     },
-    validation(){
+    validation() {
 
       let message = 'Name cannot be empty'
       this.validateEachEntity(this.name, message);
@@ -220,23 +224,22 @@ export default {
       const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
       console.log(this.image.name);
       const fileExtension = this.image.name.split(".").pop().toLowerCase();
-      if(this.errorMessages.includes(message)){
-        if(allowedExtensions.includes(fileExtension)){
+      if (this.errorMessages.includes(message)) {
+        if (allowedExtensions.includes(fileExtension)) {
           this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
         }
       }
-      else{
+      else {
         if (!allowedExtensions.includes(fileExtension)) {
           this.errorMessages.push(message);
         }
       }
     },
-    async submitForm()
-    {
+    async submitForm() {
       this.isSubmitButtonClicked = true;
       this.validation();
-      if(this.errorMessages.length > 0){
-          return;
+      if (this.errorMessages.length > 0) {
+        return;
       }
 
       // Create a FormData object
@@ -246,44 +249,43 @@ export default {
       formData.append('input_place', this.place);
       formData.append('input_capacity', this.capacity);
       formData.append('input_image', this.image);
-      
+
       const response = await fetch("http://127.0.0.1:5000/theatre_api", {
         method: "POST",
-        headers : {
-            Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('access_token'),
         },
         body: formData,
       }).then(async result => {
         const data = await result.json();
-        if (result.ok){
+        if (result.ok) {
           this.$store.commit('setNotification', { variant: 'success', message: data.message });
           this.fetchTheatres();
         }
-        else{
+        else {
           this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
         }
         this.closeModal();
-      }) 
+      })
     },
     async fetchTheatres() {
       const response = await fetch('http://127.0.0.1:5000/theatre_api', {
         method: "GET",
-        headers : {
+        headers: {
           Authorization: 'Bearer ' + localStorage.getItem('access_token'),
         }
       }).then(async result => {
         const data = await result.json();
-        if (result.ok){
+        if (result.ok) {
           this.theatres = data.theatres
         }
-        else if(result.status === 409)
-        {
-          
+        else if (result.status === 409) {
+
         }
-        else{
+        else {
           this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
         }
-      }) 
+      })
     }
   }
 }

@@ -7,7 +7,7 @@ from application import db
 
 from application.Models.theatre import Theatre
 
-from ..validation import BusinessValidationError
+from ..validation import BadRequest, BusinessValidationError
 from ..Models.user import User
 from ..Models.role import Role
 from werkzeug.security import check_password_hash
@@ -56,10 +56,10 @@ class TheatreAPI(Resource):
         new_filename = f"theatre_{theatre.id}_{image_filename}"
 
         # Construct the full path to save the image
-        image_save_path = os.path.join(src_folder_path, 'assets', new_filename)
+        image_save_path = os.path.join(src_folder_path, 'assets/images', new_filename)
         # Save the image to the full path
         input_image.save(image_save_path)
-        theatre.storedImage="/src/assets/" + new_filename
+        theatre.storedImage='../assets/images/' + new_filename
         db.session.commit()
 
         return make_response(jsonify({
@@ -67,33 +67,74 @@ class TheatreAPI(Resource):
                 }), 201)
     
     @jwt_required()
-    def get(self):
-        theatres = Theatre.query.all()
+    def get(self, theatre_id = None):
+
         errorMessages = []
-
         theatre_list = []
-        for theatre in theatres:
-            theatre_data = {
-            "id": theatre.id,
-            "name": theatre.storedName,
-            "place": theatre.storedPlace,
-            "capacity": theatre.storedCapacity,
-            "image": "./assets/theatre_1_new.png"
-            # Add more fields as needed
-            }
-            theatre_list.append(theatre_data)
 
-        if theatres is None:
-            errorMessages.append("There is no theatre")
-            raise BusinessValidationError(error_messages=errorMessages)
+        if theatre_id is None:
+            theatres = Theatre.query.all()
+            for theatre in theatres:
+                theatre_data = {
+                "id": theatre.id,
+                "name": theatre.storedName,
+                "place": theatre.storedPlace,
+                "capacity": theatre.storedCapacity,
+                "image": theatre.storedImage
+                # Add more fields as needed
+                }
+                theatre_list.append(theatre_data)
+
+            if theatres is None:
+                errorMessages.append("There is no theatre")
+                raise BusinessValidationError(error_messages=errorMessages)
+            else:
+                return make_response(jsonify({"theatres": theatre_list}), 200)
         else:
-            return make_response(jsonify({"theatres": theatre_list}), 200)
+            theatre = Theatre.query.filter_by(id = theatre_id).first()
+            if not theatre:
+                errorMessages.append("There is no theatre")
+                raise BadRequest(error_messages=errorMessages)
+            else:
+                theatre_data = {
+                "id": theatre.id,
+                "name": theatre.storedName,
+                "place": theatre.storedPlace,
+                "capacity": theatre.storedCapacity,
+                "image": theatre.storedImage
+                # Add more fields as needed
+                }
+                return make_response(jsonify(theatre_data), 200)
         
 
     @jwt_required()
     def put(self, theatre_id):
+        print(theatre_id)
+        errorMessage = []
+        theatre = Theatre.query.filter_by(id = theatre_id).first()
+        if not theatre:
+            errorMessage.append("There is no theatre")
+            raise BadRequest(error_messages=errorMessage)
 
         input_name = request.form.get("input_name", None)
         input_place = request.form.get("input_place", None)
         input_capacity = request.form.get("input_capacity", None)
         input_image = request.files.get("input_image", None)
+
+        if input_name is not None:
+            theatre.storedName = input_name
+        if input_place is not None:
+            theatre.storedPlace = input_place
+        if input_capacity is not None:
+            theatre.storedCapacity = input_capacity
+
+        db.session.commit()
+        theatre_data = {
+            "id": theatre.id,
+            "name": theatre.storedName,
+            "place": theatre.storedPlace,
+            "capacity": theatre.storedCapacity,
+            "image": theatre.storedImage,
+            "message": "Successfully updated the theatre"
+        }
+        return make_response(jsonify(theatre_data), 200)
