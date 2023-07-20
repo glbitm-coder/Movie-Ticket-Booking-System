@@ -16,15 +16,46 @@
           Show details
         </div>
       </div>
-      <div class="theatre-circle-container">
-        <div class="theatre-circle" @click="openModal">
-          <div class="theatre-plus-container">
-            <div class="theatre-horizontal-plus"></div>
-            <div class="theatre-vertical-plus"></div>
-          </div>
+    </div>
+    <div class="theatre-circle-container">
+      <div class="theatre-circle" @click="openAddShowModal">
+        <div class="theatre-plus-container">
+          <div class="theatre-horizontal-plus"></div>
+          <div class="theatre-vertical-plus"></div>
         </div>
       </div>
-    </div> 
+    </div>
+    <b-modal id="add-show-circle-modal" v-model="showAddShowModal" size="lg" variant="primary" no-close-on-backdrop>
+      <template #modal-header>
+        <h3 class="mb-0">Add Show</h3>
+      </template>
+      <template #default>
+        <div class="form-group">
+          <div id="theatre-error-message" v-if="(errorMessages.length > 0 || serverErrorMessages.length > 0) && isSubmitButtonClicked" class="theatre-error-message">
+              <ul>
+                  <template v-if="errorMessages.length > 0">
+                    <li v-for="errorMessage in errorMessages" :key="errorMessage">{{ errorMessage }}</li>
+                  </template>
+                  <template v-else-if="serverErrorMessages.length > 0">
+                    <li v-for="serverErrorMessage in serverErrorMessages" :key="serverErrorMessage">{{ serverErrorMessage }}</li>
+                  </template>
+              </ul>
+          </div>
+          <label for="place">Name:</label>
+          <input type="text" id="place" class="form-control" v-model="addShowData.name" />
+        </div>
+        <div class="form-group">
+          <label for="capacity">Capacity:</label>
+          <input type="number" id="capacity" class="form-control" v-model="addShowData.price" />
+        </div>
+      </template>
+      <template #modal-footer>
+        <b-btn class="primary" @click="submitAddShowForm(theatre)">Submit</b-btn>
+        <b-btn @click="closeAddShowModal">Close</b-btn>
+      </template>
+    </b-modal>
+    <Notification v-if="$store.state.notification" :variant="$store.state.notification.variant" 
+        :message="$store.state.notification.message" @clear-notification="clearNotification"/> 
   </div>
 </template>
 
@@ -36,6 +67,90 @@ export default {
     theatre: {
       type: Object,
       required: true
+    }
+  },
+  components: {
+    Notification
+  },
+  data() {
+    return {
+      showEditShowModal: false,
+      showAddShowModal: false,
+      addShowData:{
+        id: null,
+        name: "",
+        price: null,
+        rating: 0
+      },
+      errorMessages: [],
+      serverErrorMessages: [],
+      isAddSubmitButtonClicked: false
+    }
+  },
+  methods: {
+    clearNotification() {
+      this.$store.commit('clearNotification');
+    },
+    openAddShowModal() {
+      this.showAddShowModal = true;
+    },
+    closeAddShowModal() {
+      this.showAddShowModal = false;
+      this.addShowData = {
+        id: null,
+        name: "",
+        price: null,
+        rating: 0
+      }
+
+    },
+    validateEachEntity(entityToValidate, message) {
+      if (this.errorMessages.includes(message)) {
+        let indexOFMessage = this.errorMessages.indexOf(message);
+        this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
+        if (entityToValidate == null || entityToValidate == '') {
+          this.errorMessages.splice(indexOFMessage, 0, message);
+        }
+      }
+      else {
+        if (entityToValidate == null || entityToValidate == '') {
+          this.errorMessages.push(message);
+        }
+      }
+    },
+    addShowValidation() {
+      let message = 'Name cannot be empty'
+      this.validateEachEntity(this.addShowData.name, message);
+
+      message = 'Place cannot be empty';
+      this.validateEachEntity(this.addShowData.price, message);
+    },
+    async submitAddShowForm(theatre) {
+      this.isAddSubmitButtonClicked = true;
+      this.addShowValidation();
+      if (this.errorMessages.length > 0) {
+        return;
+      }
+      const response = await fetch("http://127.0.0.1:5000/theatre/${theatre.id}/show_api", {
+        method: "POST",
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+        },
+        body: JSON.stringify({
+          input_name: this.addShowData.name,
+          input_price: this.addShowData.price,
+        })
+      }).then(async result => {
+        const data = await result.json();
+        if (result.ok) {
+          this.$store.commit('setNotification', { variant: 'success', message: data.message });
+          this.fetchTheatres();
+        }
+        else {
+          this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
+        }
+        this.closeModal();
+      })
     }
   }
 }
