@@ -47,7 +47,7 @@ class TheatreAPI(Resource):
         # Get the path to the 'src' folder using the current file's path
         current_file_path = os.path.abspath(__file__)
         project_folder_path = os.path.dirname(os.path.dirname(os.path.dirname(current_file_path)))
-        src_folder_path = os.path.join(project_folder_path, 'src')
+        src_folder_path = os.path.join(project_folder_path, 'src/assets/images')
 
         # Get the filename from the uploaded image
         image_filename = input_image.filename
@@ -56,7 +56,7 @@ class TheatreAPI(Resource):
         new_filename = f"theatre_{theatre.id}_{image_filename}"
 
         # Construct the full path to save the image
-        image_save_path = os.path.join(src_folder_path, 'assets/images', new_filename)
+        image_save_path = os.path.join(src_folder_path, new_filename)
         # Save the image to the full path
         input_image.save(image_save_path)
         theatre.storedImage='../assets/images/' + new_filename
@@ -109,7 +109,7 @@ class TheatreAPI(Resource):
 
     @jwt_required()
     def put(self, theatre_id):
-        print(theatre_id)
+        
         errorMessage = []
         theatre = Theatre.query.filter_by(id = theatre_id).first()
         if not theatre:
@@ -138,3 +138,28 @@ class TheatreAPI(Resource):
             "message": "Successfully updated the theatre"
         }
         return make_response(jsonify(theatre_data), 200)
+    
+
+    @jwt_required()
+    def delete(self, theatre_id):
+
+        errorMessage = []
+        theatre = Theatre.query.filter_by(id = theatre_id).first()
+        if not theatre:
+            errorMessage.append("There is no theatre")
+            raise BadRequest(error_messages=errorMessage)
+        else:
+            current_file_path = os.path.abspath(__file__)
+            project_folder_path = os.path.dirname(os.path.dirname(os.path.dirname(current_file_path)))
+            src_folder_path = os.path.join(project_folder_path, 'src/assets/images')
+            image_save_path = os.path.join(src_folder_path, theatre.storedImage)
+            replaced_string = image_save_path.replace("\\", "/")
+            
+            os.remove(replaced_string)
+            db.session.delete(theatre)
+            db.session.commit()
+            return make_response(jsonify({"message" : "Theatre successfully deleted"}), 200)
+        
+        
+
+

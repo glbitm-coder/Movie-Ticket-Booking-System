@@ -193,6 +193,28 @@ export default {
                 }
                 this.closeEditModal();
             })
+        },
+        async deleteTheatre(theatre) {
+            const confirmDelete = window.confirm('Are you sure you want to delete this theatre?');
+            if (confirmDelete) {
+                const response = await fetch(`http://127.0.0.1:5000/theatre_api/${theatre.id}`, {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+                    },
+                }).then(async result => {
+                    const data = await result.json();
+                    if (result.ok) {
+                        this.$emit('theatre-deleted', theatre.id);
+                        theatre = null;
+
+                        this.$store.commit('setNotification', { variant: 'success', message: data.message });
+                    }
+                    else {
+                        this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
+                    }
+                })
+            }
         }
     },
 }

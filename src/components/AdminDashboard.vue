@@ -56,8 +56,8 @@
         <div class="col-4" v-for="theatre in row" :key="theatre.id">
           <b-card :header="theatre.name" header-tag="header" bg-variant="secondary" text-variant="white">
             <b-card-text>
-              <!-- <AdminShow :theatre="theatre" @add-show="addShow" /> -->
-              <AdminTheatre :theatre="theatre"/>
+              <AdminShow :theatre="theatre" />
+              <AdminTheatre :theatre="theatre" @theatre-deleted="removeTheatre"/>
             </b-card-text>
             <template #footer>
               <small class="text-muted">Last updated 3 mins ago</small>
@@ -128,6 +128,9 @@ export default {
     clearNotification() {
             this.$store.commit('clearNotification');
         },
+        removeTheatre(theatreId) {
+      this.theatres = this.theatres.filter(theatre => theatre.id !== theatreId);
+    },
     getColClass(theatresCount) {
       const colSize = Math.floor(12 / theatresCount);
       return `col-${colSize}`;
