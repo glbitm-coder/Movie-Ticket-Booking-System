@@ -48,6 +48,28 @@
           <label for="capacity">Capacity:</label>
           <input type="number" id="capacity" class="form-control" v-model="addShowData.price" />
         </div>
+        <div class="form-group">
+          <label for="date">Date:</label>
+          <input type="date" id="date" class="form-control" v-model="addShowData.date" />
+        </div>
+        <div class="form-group">
+          <label for="startTime">Start Time:</label>
+          <input type="time" id="startTime" class="form-control" v-model="addShowData.startTime" />
+        </div>
+        <div class="form-group">
+          <label for="endTime">End Time:</label>
+          <input type="time" id="endTime" class="form-control" v-model="addShowData.endTime" />
+        </div>
+        <div class="form-group">
+          <label for="tags">Tags:</label>
+          <select id="tags" class="form-control" v-model="addShowData.tags" multiple>
+            <option value="drama">Drama</option>
+            <option value="thriller">Thriller</option>
+            <option value="action">Action</option>
+            <option value="romance">Romance</option>
+            <!-- Add more options as needed -->
+          </select>
+        </div>
       </template>
       <template #modal-footer>
         <b-btn class="primary" @click="submitAddShowForm(theatre)">Submit</b-btn>
@@ -76,11 +98,15 @@ export default {
     return {
       showEditShowModal: false,
       showAddShowModal: false,
-      addShowData:{
+      addShowData: {
         id: null,
         name: "",
         price: null,
-        rating: 0
+        rating: 0,
+        date: null, 
+        startTime: null, 
+        endTime: null,
+        tags: [],
       },
       errorMessages: [],
       serverErrorMessages: [],

@@ -10,4 +10,4 @@ class Theatre(db.Model, UserMixin):
     storedCapacity = db.Column(db.Integer, nullable=False)
     storedImage = db.Column(db.String, default="", unique=True, nullable=False)
     createdby_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    shows = db.elationship('Show', secondary='show_theatre_association', back_populates='theatres')
+    shows = db.relationship('Show', secondary='show_theatre_association', back_populates='theatres')

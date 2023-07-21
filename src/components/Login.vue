@@ -167,6 +167,7 @@ export default{
                     this.$store.commit('setToken', { access_token: data.access_token });
                     this.$store.commit('setExpiryTime', { expiryTime: data.expires });
                     this.$store.commit('setRole', { userRole: this.selectedRole});
+                    this.$store.commit('setUserId', { userId: data.id });
                     if(this.selectedRole === 'Admin'){
                         this.$router.push('/admin/dashboard');
                     }

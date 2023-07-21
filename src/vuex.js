@@ -32,6 +32,10 @@ const store = new Vuex.Store({
       setRole(state, payload){
         state.userRole = payload.userRole;
         localStorage.setItem('selectedRole', payload.userRole);
+      },
+      setUserId(state, payload) { // Add the setUserId mutation
+        state.userId = parseInt(payload.userId);
+        localStorage.setItem('userId', parseInt(payload.userId));
       }
     }
   });

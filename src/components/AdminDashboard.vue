@@ -252,8 +252,9 @@ export default {
       formData.append('input_place', this.place);
       formData.append('input_capacity', this.capacity);
       formData.append('input_image', this.image);
+      const user_id = parseInt(localStorage.getItem('userId'));
 
-      const response = await fetch("http://127.0.0.1:5000/theatre_api", {
+      const response = await fetch(`http://127.0.0.1:5000/user/${user_id}/theatre_api`, {
         method: "POST",
         headers: {
           Authorization: 'Bearer ' + localStorage.getItem('access_token'),
@@ -272,7 +273,9 @@ export default {
       })
     },
     async fetchTheatres() {
-      const response = await fetch('http://127.0.0.1:5000/theatre_api', {
+
+      const user_id = parseInt(localStorage.getItem('userId'));
+      const response = await fetch(`http://127.0.0.1:5000/user/${user_id}/theatre_api`, {
         method: "GET",
         headers: {
           Authorization: 'Bearer ' + localStorage.getItem('access_token'),

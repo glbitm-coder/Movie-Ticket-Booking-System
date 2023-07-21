@@ -2,7 +2,7 @@ import datetime
 import os
 from flask import jsonify, make_response, request
 from flask_cors import cross_origin
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from application import db
 
 from application.Models.theatre import Theatre
@@ -18,10 +18,20 @@ from ..Parser.theatreParser import theatre_parser
 
 class TheatreAPI(Resource):
 
-    @cross_origin(origin="localhost:8080")
     @jwt_required()
-    def post(self):
+    def post(self, user_id = None):
+
+        current_user_id = get_jwt_identity()
+        print(type(user_id))
+
+        if user_id is not None and user_id != current_user_id:
+            return make_response(jsonify({"message": "Unauthorized"}), 401)
         
+        user = User.query.filter_by(id = user_id).first()
+        if not user:
+            return make_response(jsonify({"message": "User not found"}), 404)
+
+
         input_name = request.form.get("input_name", None)
         input_place = request.form.get("input_place", None)
         input_capacity = request.form.get("input_capacity", None)
@@ -41,7 +51,7 @@ class TheatreAPI(Resource):
         if len(errorMessages) != 0:
             raise BusinessValidationError(error_messages=errorMessages)
 
-        theatre = Theatre(storedName=input_name, storedPlace=input_place, storedCapacity=input_capacity)
+        theatre = Theatre(storedName=input_name, storedPlace=input_place, storedCapacity=input_capacity, creator=user)
         db.session.add(theatre)
         db.session.commit()
         # Get the path to the 'src' folder using the current file's path
@@ -67,13 +77,13 @@ class TheatreAPI(Resource):
                 }), 201)
     
     @jwt_required()
-    def get(self, theatre_id = None):
-
+    def get(self, user_id = None, theatre_id = None):
+        
         errorMessages = []
         theatre_list = []
-
+        user = User.query.filter_by(id = user_id).first()
         if theatre_id is None:
-            theatres = Theatre.query.all()
+            theatres = user.theatres_created.all()
             for theatre in theatres:
                 theatre_data = {
                 "id": theatre.id,

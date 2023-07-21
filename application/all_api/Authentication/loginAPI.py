@@ -43,7 +43,7 @@ class LoginAPI(Resource):
                 expiry_time = now + expires
                 return make_response(jsonify({
                     "message" : "Logged in successfully!",
-                    "id": str(user.id),
+                    "id": user.id,
                     "access_token": access_token,
                     "expires": expiry_time
                 }), 200)

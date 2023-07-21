@@ -47,14 +47,18 @@ def create_app():
     api.add_resource(LoginAPI, "/login")
     api.add_resource(SignUpAPI, "/signup")
     api.add_resource(RoleAPI, "/api/roles")
-    api.add_resource(TheatreAPI, "/theatre_api", "/theatre_api/<theatre_id>")
+    api.add_resource(TheatreAPI, "/user/<int:user_id>/theatre_api", "/theatre_api/<theatre_id>")
     # api.add_resource(UserAPI, "/api/user/<int:user_id>")
     # api.add_resource(BlogAPI, "/api/user/<int:user_id>/blog", "/api/user/<int:user_id>/blog/<int:blog_id>", "/api/blog/<int:blog_id>")
     
     api.add_resource(LogoutAPI, "/logout")
     
 
-    from .Models import user, role
+    from .Models.user import User
+    from .Models.role import Role
+    from .Models.show import Show
+    from .Models.theatre import Theatre
+    from .Models.show_theatre import ShowTheatreAssociation
 
     with app.app_context():
         create_database()
