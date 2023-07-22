@@ -6,7 +6,7 @@ class Show(db.Model, UserMixin):
     __tablename__ = 'show'
     id = db.Column(db.Integer, primary_key=True)
     storedName = db.Column(db.String, nullable=False)
-    storedRating = db.Column(db.Integer, nullable=False)
+    storedRating = db.Column(db.Integer, default=0)
     storedPrice = db.Column(db.Integer, nullable=False)
     storedTags = db.Column(db.String, nullable=False)
     date = db.Column(db.Date, nullable=False)

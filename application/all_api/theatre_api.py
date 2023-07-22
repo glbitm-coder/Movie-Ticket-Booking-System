@@ -7,7 +7,7 @@ from application import db
 
 from application.Models.theatre import Theatre
 
-from ..validation import BadRequest, BusinessValidationError
+from ..validation import BadRequest, BusinessValidationError, NotFoundError, UnAuthorizedError
 from ..Models.user import User
 from ..Models.role import Role
 from werkzeug.security import check_password_hash
@@ -21,23 +21,23 @@ class TheatreAPI(Resource):
     @jwt_required()
     def post(self, user_id = None):
 
-        current_user_id = get_jwt_identity()
-        print(type(user_id))
+        errorMessages = []
 
+        current_user_id = get_jwt_identity()
         if user_id is not None and user_id != current_user_id:
-            return make_response(jsonify({"message": "Unauthorized"}), 401)
+            errorMessages.append("Unautorized")
+            return UnAuthorizedError(error_messages=errorMessages)
         
         user = User.query.filter_by(id = user_id).first()
         if not user:
-            return make_response(jsonify({"message": "User not found"}), 404)
+            errorMessages.append("User not found")
+            return NotFoundError(error_messages=errorMessages)
 
 
         input_name = request.form.get("input_name", None)
         input_place = request.form.get("input_place", None)
         input_capacity = request.form.get("input_capacity", None)
         input_image = request.files.get("input_image", None)
-
-        errorMessages = []
 
         if not input_name:
             errorMessages.append("Name cannot be empty")
@@ -69,7 +69,7 @@ class TheatreAPI(Resource):
         image_save_path = os.path.join(src_folder_path, new_filename)
         # Save the image to the full path
         input_image.save(image_save_path)
-        theatre.storedImage='../assets/images/' + new_filename
+        theatre.storedImage= '' + new_filename
         db.session.commit()
 
         return make_response(jsonify({
@@ -79,9 +79,20 @@ class TheatreAPI(Resource):
     @jwt_required()
     def get(self, user_id = None, theatre_id = None):
         
+
         errorMessages = []
         theatre_list = []
+
+        current_user_id = get_jwt_identity()
+        if user_id is not None and user_id != current_user_id:
+            errorMessages.append("Unautorized")
+            return UnAuthorizedError(error_messages=errorMessages)
+        
         user = User.query.filter_by(id = user_id).first()
+        if not user:
+            errorMessages.append("User not found")
+            return NotFoundError(error_messages=errorMessages)
+        
         if theatre_id is None:
             theatres = user.theatres_created.all()
             for theatre in theatres:
@@ -118,13 +129,24 @@ class TheatreAPI(Resource):
         
 
     @jwt_required()
-    def put(self, theatre_id):
+    def put(self, user_id = None, theatre_id = None):
         
-        errorMessage = []
+        errorMessages = []
+
+        current_user_id = get_jwt_identity()
+        if user_id is not None and user_id != current_user_id:
+            errorMessages.append("Unautorized")
+            return UnAuthorizedError(error_messages=errorMessages)
+        
+        user = User.query.filter_by(id = user_id).first()
+        if not user:
+            errorMessages.append("User not found")
+            return NotFoundError(error_messages=errorMessages)
+
         theatre = Theatre.query.filter_by(id = theatre_id).first()
         if not theatre:
-            errorMessage.append("There is no theatre")
-            raise BadRequest(error_messages=errorMessage)
+            errorMessages.append("There is no theatre")
+            raise BadRequest(error_messages=errorMessages)
 
         input_name = request.form.get("input_name", None)
         input_place = request.form.get("input_place", None)
@@ -151,13 +173,24 @@ class TheatreAPI(Resource):
     
 
     @jwt_required()
-    def delete(self, theatre_id):
+    def delete(self, user_id = None, theatre_id = None):
 
-        errorMessage = []
+        errorMessages = []
+
+        current_user_id = get_jwt_identity()
+        if user_id is not None and user_id != current_user_id:
+            errorMessages.append("Unautorized")
+            return UnAuthorizedError(error_messages=errorMessages)
+        
+        user = User.query.filter_by(id = user_id).first()
+        if not user:
+            errorMessages.append("User not found")
+            return NotFoundError(error_messages=errorMessages)
+        
         theatre = Theatre.query.filter_by(id = theatre_id).first()
         if not theatre:
-            errorMessage.append("There is no theatre")
-            raise BadRequest(error_messages=errorMessage)
+            errorMessages.append("There is no theatre")
+            raise BadRequest(error_messages=errorMessages)
         else:
             current_file_path = os.path.abspath(__file__)
             project_folder_path = os.path.dirname(os.path.dirname(os.path.dirname(current_file_path)))

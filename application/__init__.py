@@ -6,6 +6,7 @@ from flask_login import LoginManager
 from flask_cors import CORS
 from flask_restful import Resource, Api, fields, marshal_with, reqparse
 from flask_jwt_extended import JWTManager
+
 from application.validation import UnAuthorizedError
 from application.blocklist import BLOCKLIST
 
@@ -33,21 +34,20 @@ def create_app():
     # from .views import view
     # from .auth import auth
     # from .all_api.user_api  import UserAPI
+
     from application.all_api.Authentication.loginAPI import LoginAPI
     from application.all_api.Authentication.logoutAPI import LogoutAPI
     from application.all_api.Authentication.signupAPI import SignUpAPI
     from application.all_api.role_api import RoleAPI
     from application.all_api.theatre_api import TheatreAPI      
-    
-
-
-    # app.register_blueprint(view, url_prefix='/')
-    # app.register_blueprint(auth, url_prefix='/')
+    from application.all_api.shows_api import ShowAPI
 
     api.add_resource(LoginAPI, "/login")
     api.add_resource(SignUpAPI, "/signup")
     api.add_resource(RoleAPI, "/api/roles")
-    api.add_resource(TheatreAPI, "/user/<int:user_id>/theatre_api", "/theatre_api/<theatre_id>")
+    api.add_resource(TheatreAPI, "/user/<int:user_id>/theatre_api", "/user/<int:user_id>/theatre_api/<int:theatre_id>")
+    api.add_resource(ShowAPI, "/user/<int:user_id>/theatre/<int:theatre_id>/show_api",
+                     "/user/<int:user_id>/theatre/<int:theatre_id>/show_api/<int:show_id>")
     # api.add_resource(UserAPI, "/api/user/<int:user_id>")
     # api.add_resource(BlogAPI, "/api/user/<int:user_id>/blog", "/api/user/<int:user_id>/blog/<int:blog_id>", "/api/blog/<int:blog_id>")
     
@@ -64,14 +64,6 @@ def create_app():
         create_database()
         add_initial_roles()
 
-
-    # login_manager = LoginManager()
-    # login_manager.login_view = "auth.login"
-    # login_manager.init_app(app)
-
-    # @login_manager.user_loader
-    # def load_user(id):
-    #     return User.query.get(int(id))
 
     return app
 

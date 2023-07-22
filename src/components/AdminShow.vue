@@ -31,7 +31,7 @@
       </template>
       <template #default>
         <div class="form-group">
-          <div id="theatre-error-message" v-if="(errorMessages.length > 0 || serverErrorMessages.length > 0) && isSubmitButtonClicked" class="theatre-error-message">
+          <div id="admin-show-theatre-error-message" v-if="(errorMessages.length > 0 || serverErrorMessages.length > 0) && isAddSubmitButtonClicked" class="theatre-error-message">
               <ul>
                   <template v-if="errorMessages.length > 0">
                     <li v-for="errorMessage in errorMessages" :key="errorMessage">{{ errorMessage }}</li>
@@ -45,7 +45,7 @@
           <input type="text" id="place" class="form-control" v-model="addShowData.name" />
         </div>
         <div class="form-group">
-          <label for="capacity">Capacity:</label>
+          <label for="capacity">Price:</label>
           <input type="number" id="capacity" class="form-control" v-model="addShowData.price" />
         </div>
         <div class="form-group">
@@ -67,6 +67,10 @@
             <option value="thriller">Thriller</option>
             <option value="action">Action</option>
             <option value="romance">Romance</option>
+            <option value="comedy">Comedy</option>
+            <option value="fiction">Fiction</option>
+            <option value="sports">Sports</option>
+            <option value="horror">Horror</option>
             <!-- Add more options as needed -->
           </select>
         </div>
@@ -82,6 +86,7 @@
 </template>
 
 <script>
+import Notification from './Notification.vue'
 
 export default {
   name: 'AdminShow',
@@ -126,7 +131,8 @@ export default {
         id: null,
         name: "",
         price: null,
-        rating: 0
+        rating: 0,
+        tags: []
       }
 
     },
@@ -150,6 +156,118 @@ export default {
 
       message = 'Place cannot be empty';
       this.validateEachEntity(this.addShowData.price, message);
+
+      message = 'Date cannot be empty';
+      this.validateEachEntity(this.addShowData.date, message);
+
+      const currentDate = new Date();
+      const selectedDate = new Date(this.addShowData.date);
+      message = 'Selected date cannot be in the past';
+      if (this.errorMessages.includes(message)) {
+        let indexOFMessage = this.errorMessages.indexOf(message);
+        this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
+        if (this.addShowData.date != null && selectedDate.getDate() < currentDate.getDate()) {
+          this.errorMessages.splice(indexOFMessage, 0, message);
+        }
+      }
+      else {
+        if (this.addShowData.date != null && selectedDate.getDate() < currentDate.getDate()) {
+          this.errorMessages.push(message);
+        }
+      }
+
+
+      // Start time and End time validation
+      message = 'Start time cannot be empty';
+      this.validateEachEntity(this.addShowData.startTime, message);
+
+      message = 'End time cannot be empty';
+      this.validateEachEntity(this.addShowData.endTime, message);
+
+      const selectedStartTime = new Date();
+      if (this.addShowData.startTime != null) {
+        selectedStartTime.setHours(Number(this.addShowData.startTime.slice(0, 2)));
+        selectedStartTime.setMinutes(Number(this.addShowData.startTime.slice(3)));
+      }
+
+      const selectedEndTime = new Date();
+      if (this.addShowData.endTime != null) {
+        selectedEndTime.setHours(Number(this.addShowData.endTime.slice(0, 2)));
+        selectedEndTime.setMinutes(Number(this.addShowData.endTime.slice(3)));
+      }
+
+      message = 'Start time cannot be before or equal to the current time';
+      if (this.errorMessages.includes(message)) {
+        let indexOFMessage = this.errorMessages.indexOf(message);
+        this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
+        if (selectedDate.getDate() === currentDate.getDate() && selectedDate.getFullYear() === currentDate.getFullYear() && selectedDate.getMonth() === currentDate.getMonth()) {
+          const currentTime = new Date();
+          if (this.addShowData.startTime != null && selectedStartTime <= currentTime) {
+            this.errorMessages.splice(indexOFMessage, 0, message);
+          }
+        }
+      }
+      else {
+        if (selectedDate.getDate() === currentDate.getDate() && selectedDate.getFullYear() === currentDate.getFullYear() && selectedDate.getMonth() === currentDate.getMonth()) {
+          const currentTime = new Date();
+          if (this.addShowData.startTime != null && selectedStartTime <= currentTime) {
+            this.errorMessages.push(message);
+          }
+        }
+      }
+
+      message = 'End time cannot be before or equal to the current time';
+      if (this.errorMessages.includes(message)) {
+        let indexOFMessage = this.errorMessages.indexOf(message);
+        this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
+        if (selectedDate.getDate() === currentDate.getDate() && selectedDate.getFullYear() === currentDate.getFullYear() && selectedDate.getMonth() === currentDate.getMonth()) {
+          const currentTime = new Date();
+          if (this.addShowData.endTime != null && selectedStartTime <= currentTime) {
+            this.errorMessages.splice(indexOFMessage, 0, message);
+          }
+        }
+      }
+      else {
+        if (selectedDate.getDate() === currentDate.getDate() && selectedDate.getFullYear() === currentDate.getFullYear() && selectedDate.getMonth() === currentDate.getMonth()) {
+          const currentTime = new Date();
+          if (this.addShowData.endTime != null && selectedEndTime <= currentTime) {
+            this.errorMessages.push(message);
+          }
+        }
+      }
+
+      message = 'End time should be greater than start time';
+      if (this.errorMessages.includes(message)) {
+        let indexOFMessage = this.errorMessages.indexOf(message);
+        this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
+        if (this.addShowData.endTime != null && this.addShowData.startTime != null && selectedEndTime <= selectedStartTime) {
+          this.errorMessages.splice(indexOFMessage, 0, message);
+        }
+
+      }
+      else {
+        if (this.addShowData.endTime != null && this.addShowData.startTime != null && selectedEndTime <= selectedStartTime) {
+          this.errorMessages.push(message);
+
+        }
+      }
+
+      // Tags validation
+      message = 'No tags selected';
+      if (this.errorMessages.includes(message)) {
+        let indexOFMessage = this.errorMessages.indexOf(message);
+        this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
+        if (this.addShowData.tags.length === 0) {
+          this.errorMessages.splice(indexOFMessage, 0, message);
+        }
+
+      }
+      else {
+        if (this.addShowData.tags.length === 0) {
+          this.errorMessages.push(message);
+
+        }
+      }
     },
     async submitAddShowForm(theatre) {
       this.isAddSubmitButtonClicked = true;
@@ -157,25 +275,32 @@ export default {
       if (this.errorMessages.length > 0) {
         return;
       }
-      const response = await fetch("http://127.0.0.1:5000/theatre/${theatre.id}/show_api", {
+      
+      const user_id = parseInt(localStorage.getItem('userId')); 
+      const tagsString = this.addShowData.tags.join(",");
+      const response = await fetch(`http://127.0.0.1:5000/user/${user_id}/theatre/${theatre.id}/show_api`, {
         method: "POST",
         headers: {
           Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           input_name: this.addShowData.name,
           input_price: this.addShowData.price,
+          input_date: this.addShowData.date,
+          input_startTime: this.addShowData.startTime,
+          input_endTime: this.addShowData.endTime,
+          input_tags: tagsString
         })
       }).then(async result => {
         const data = await result.json();
         if (result.ok) {
           this.$store.commit('setNotification', { variant: 'success', message: data.message });
-          this.fetchTheatres();
         }
         else {
           this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
         }
-        this.closeModal();
+        this.closeAddShowModal();
       })
     }
   }
@@ -232,38 +357,21 @@ export default {
   transform: translateX(-50%);
 }
 
-/* .show-plus-container {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  width: 25px;
-  height: 25px;
-  background-color: #e6e6e6;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+#admin-show-theatre-error-message {
+  width: 750px;
+  margin-top: -15px;
+  border-color: black; 
+  border: 2px solid black;
 }
 
-.show-horizontal-plus,
-.show-vertical-plus {
-  position: absolute;
-  background-color: #d41818;
+#admin-show-theatre-error-message ul {
+  color: white;
+  background-color: lightcoral;
+  padding: 10px;
+  margin: 0;
+  list-style-type: none;
 }
 
-.show-horizontal-plus {
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 2px;
-}
 
-.show-vertical-plus {
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-} */
 
 </style>

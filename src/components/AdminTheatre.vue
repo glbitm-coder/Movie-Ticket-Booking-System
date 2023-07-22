@@ -81,7 +81,8 @@ export default {
             this.$store.commit('clearNotification');
         },
         async fetchTheatre(theatre_id) {
-            const response = await fetch(`http://127.0.0.1:5000/theatre_api/${theatre_id}`, {
+            const user_id = parseInt(localStorage.getItem('userId'));
+            const response = await fetch(`http://127.0.0.1:5000/user/${user_id}/theatre_api/${theatre_id}`, {
                 method: "GET",
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem('access_token'),
@@ -172,7 +173,8 @@ export default {
                 this.closeEditModal();
                 return;
             }
-            const response = await fetch(`http://127.0.0.1:5000/theatre_api/${theatre.id}`, {
+            const user_id = parseInt(localStorage.getItem('userId'));
+            const response = await fetch(`http://127.0.0.1:5000/user/${user_id}/theatre_api/${theatre.id}`, {
                 method: "PUT",
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem('access_token'),
@@ -197,7 +199,8 @@ export default {
         async deleteTheatre(theatre) {
             const confirmDelete = window.confirm('Are you sure you want to delete this theatre?');
             if (confirmDelete) {
-                const response = await fetch(`http://127.0.0.1:5000/theatre_api/${theatre.id}`, {
+                const user_id = parseInt(localStorage.getItem('userId'));
+                const response = await fetch(`http://127.0.0.1:5000/user/${user_id}/theatre_api/${theatre.id}`, {
                     method: "DELETE",
                     headers: {
                         Authorization: 'Bearer ' + localStorage.getItem('access_token'),
