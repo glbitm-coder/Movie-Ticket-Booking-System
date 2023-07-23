@@ -1,19 +1,39 @@
 <template>
   <div>
-    <div class="shows-box">
-      <div v-for="show in theatre.shows" :key="show.id" class="show-item">
-        <div class="show-actions">
-          Actions dropdown for each show
-          <b-dropdown variant="secondary" class="mr-2">
+    <div id="shows-box">
+      <!-- Loop through each show in the theatre.shows array -->
+      <div v-for="show in theatre.shows" :key="show.id" id="show-item">
+        <!-- Show details -->
+        <div id="show-details">
+          <!-- Add your show details content here -->
+          <!-- For example, you can display show name, date, etc. -->
+          <div id="each-detail">
+            <div id="show-name" class="right-details">
+            Show Name: {{ show.name }}
+            </div>
+            <div id="show-date" class="left-details">
+              Date: {{ show.date }}
+            </div>
+          </div>
+          <div id="each-detail">
+            <div id="show-tags" class="right-details">
+              Tags: {{ show.tags }}
+            </div>
+            <div id="show-price" class="left-details">
+              Price: {{ show.price }}
+            </div>
+          </div>
+        </div>
+        <!-- Show Actions dropdown -->
+        <div id="show-actions">
+          <!-- Actions dropdown menu -->
+          <b-dropdown  variant="info"  class="mr-2">
             <template #button-content>
               Actions
             </template>
-            <b-dropdown-item>Edit Show</b-dropdown-item>
-            <b-dropdown-item>Delete Show</b-dropdown-item>
+            <b-dropdown-item @click="editShow(show.id)">Edit Show</b-dropdown-item>
+            <b-dropdown-item @click="deleteShow(show.id)">Delete Show</b-dropdown-item>
           </b-dropdown>
-        </div>
-        <div class="show-details">
-          Show details
         </div>
       </div>
     </div>
@@ -31,7 +51,7 @@
       </template>
       <template #default>
         <div class="form-group">
-          <div id="admin-show-theatre-error-message" v-if="(errorMessages.length > 0 || serverErrorMessages.length > 0) && isAddSubmitButtonClicked" class="theatre-error-message">
+          <div id="admin-show-error-message" v-if="(errorMessages.length > 0 || serverErrorMessages.length > 0) && isAddSubmitButtonClicked" class="admin-show-error-message">
               <ul>
                   <template v-if="errorMessages.length > 0">
                     <li v-for="errorMessage in errorMessages" :key="errorMessage">{{ errorMessage }}</li>
@@ -80,6 +100,61 @@
         <b-btn @click="closeAddShowModal">Close</b-btn>
       </template>
     </b-modal>
+    <b-modal id="edmit-edit-show-modal" v-model="showEditShowModal" size="lg" variant="primary" no-close-on-backdrop>
+      <template #modal-header>
+        <h3 class="mb-0">Edit Show</h3>
+      </template>
+      <template #default>
+        <div class="form-group">
+          <div id="admin-show-error-message" v-if="(errorMessages.length > 0 || serverErrorMessages.length > 0) && isEditSubmitButtonClicked" class="admin-show-error-message">
+              <ul>
+                  <template v-if="errorMessages.length > 0">
+                    <li v-for="errorMessage in errorMessages" :key="errorMessage">{{ errorMessage }}</li>
+                  </template>
+                  <template v-else-if="serverErrorMessages.length > 0">
+                    <li v-for="serverErrorMessage in serverErrorMessages" :key="serverErrorMessage">{{ serverErrorMessage }}</li>
+                  </template>
+              </ul>
+          </div>
+          <label for="place">Name:</label>
+          <input type="text" id="place" class="form-control" v-model="editShowData.name" />
+        </div>
+        <div class="form-group">
+          <label for="capacity">Price:</label>
+          <input type="number" id="capacity" class="form-control" v-model="editShowData.price" />
+        </div>
+        <div class="form-group">
+          <label for="date">Date:</label>
+          <input type="date" id="date" class="form-control" v-model="editShowData.date" />
+        </div>
+        <div class="form-group">
+          <label for="startTime">Start Time:</label>
+          <input type="time" id="startTime" class="form-control" v-model="editShowData.startTime" />
+        </div>
+        <div class="form-group">
+          <label for="endTime">End Time:</label>
+          <input type="time" id="endTime" class="form-control" v-model="editShowData.endTime" />
+        </div>
+        <div class="form-group">
+          <label for="tags">Tags:</label>
+          <select id="tags" class="form-control" v-model="editShowData.tags" multiple>
+            <option value="drama">Drama</option>
+            <option value="thriller">Thriller</option>
+            <option value="action">Action</option>
+            <option value="romance">Romance</option>
+            <option value="comedy">Comedy</option>
+            <option value="fiction">Fiction</option>
+            <option value="sports">Sports</option>
+            <option value="horror">Horror</option>
+            <!-- Add more options as needed -->
+          </select>
+        </div>
+      </template>
+      <template #modal-footer>
+        <b-btn class="primary" @click="submitEditShowForm(theatre)">Submit</b-btn>
+        <b-btn @click="closeEditShowModal">Close</b-btn>
+      </template>
+    </b-modal>
     <Notification v-if="$store.state.notification" :variant="$store.state.notification.variant" 
         :message="$store.state.notification.message" @clear-notification="clearNotification"/> 
   </div>
@@ -113,9 +188,20 @@ export default {
         endTime: null,
         tags: [],
       },
+      editShowData: {
+        id: null,
+        name: "",
+        price: null,
+        rating: 0,
+        date: null, 
+        startTime: null, 
+        endTime: null,
+        tags: [],
+      },
       errorMessages: [],
       serverErrorMessages: [],
-      isAddSubmitButtonClicked: false
+      isAddSubmitButtonClicked: false,
+      isEditSubmitButtonClicked: false
     }
   },
   methods: {
@@ -357,21 +443,57 @@ export default {
   transform: translateX(-50%);
 }
 
-#admin-show-theatre-error-message {
+#admin-show-error-message {
   width: 750px;
   margin-top: -15px;
   border-color: black; 
   border: 2px solid black;
 }
 
-#admin-show-theatre-error-message ul {
+#admin-show-error-message ul {
   color: white;
   background-color: lightcoral;
   padding: 10px;
   margin: 0;
   list-style-type: none;
 }
+#shows-box {
+    max-height: 235px; 
+    overflow-y: auto; 
+    margin-bottom: 10px;
+  }
 
+  #show-item {
+    width: 100%;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    background-color: lightcoral;
+  }
 
+  #show-actions {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  #actions-message {
+    text-align: center;
+    /* Add other styling properties as needed */
+  }
+  #each-detail {
+    display: flex;
+    justify-content: space-between;
+  }
+  #show-actions .dropdown-button-color .dropdown-toggle{
+    background-color: lightskyblue;
+  }
+  .left-details {
+    padding-right: 10px;
+  }
+
+  .right-details {
+    padding-left: 10px;
+  }
 
 </style>

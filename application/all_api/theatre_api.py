@@ -101,14 +101,27 @@ class TheatreAPI(Resource):
                 "name": theatre.storedName,
                 "place": theatre.storedPlace,
                 "capacity": theatre.storedCapacity,
-                "image": theatre.storedImage
-                # Add more fields as needed
+                "image": theatre.storedImage,
+                "shows": []
                 }
+                for show in theatre.shows:
+                    show_data = {
+                        "id": show.id,
+                        "name": show.storedName,
+                        "rating": show.storedRating,
+                        "price": show.storedPrice,
+                        "tags": show.storedTags,
+                        "date": show.date.strftime("%Y-%m-%d"),  
+                        "startTime": show.startTime.strftime("%H:%M"), 
+                        "endTime": show.endTime.strftime("%H:%M") 
+                        # Add more fields as needed
+                    }
+                    theatre_data["shows"].append(show_data)
                 theatre_list.append(theatre_data)
 
             if theatres is None:
                 errorMessages.append("There is no theatre")
-                raise BusinessValidationError(error_messages=errorMessages)
+                raise NotFoundError(error_messages=errorMessages)
             else:
                 return make_response(jsonify({"theatres": theatre_list}), 200)
         else:
@@ -122,7 +135,8 @@ class TheatreAPI(Resource):
                 "name": theatre.storedName,
                 "place": theatre.storedPlace,
                 "capacity": theatre.storedCapacity,
-                "image": theatre.storedImage
+                "image": theatre.storedImage,
+                "shows": theatre.shows
                 # Add more fields as needed
                 }
                 return make_response(jsonify(theatre_data), 200)

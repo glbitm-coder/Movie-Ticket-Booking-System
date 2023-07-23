@@ -98,6 +98,78 @@ class ShowAPI(Resource):
             return make_response(jsonify({
                     "message" : "Show created successfully"
                 }), 201)
+        
+    
+    @jwt_required()
+    def get(self, user_id = None, theatre_id = None, show_id = None):
+
+        errorMessages = []
+        show_list = []
+        current_user_id = get_jwt_identity()
+        if user_id is None:
+            errorMessages.append("User is required to retrieve show")
+            return BusinessValidationError(error_messages=errorMessages)
+
+        if user_id is not None and user_id != current_user_id:
+            errorMessages.append("You are not authorized to see the page")
+            return UnAuthorizedError(error_messages=errorMessages)
+        
+        user = User.query.filter_by(id = user_id).first()
+        if not user:
+            errorMessages.append("User not found")
+            return NotFoundError(error_messages=errorMessages)
+        
+        if theatre_id is None:
+            errorMessages.append("Theatre is required to retrieve show")
+            return BusinessValidationError(error_messages=errorMessages)
+        
+        theatre = Theatre.query.filter_by(id = theatre_id).first()
+        if not theatre:
+            errorMessages.append("Theatre not found")
+            return NotFoundError(error_messages=errorMessages)
+        
+
+        if show_id is None:
+            shows = theatre.shows.all()
+            for show in shows:
+                show_data = {
+                "id": show.id,
+                "name": show.storedName,
+                "rating": show.storedRating,
+                "price": show.storedPrice,
+                "tags": show.storedtags,
+                "date": show.date,
+                "startTime": show.startTime,
+                "endTime": show.endTime,
+                "created_by": user.id
+                # Add more fields as needed
+                }
+                show_list.append(show_data)
+
+            if shows is None:
+                errorMessages.append("There is no shows")
+                raise NotFoundError(error_messages=errorMessages)
+            else:
+                return make_response(jsonify({"shows": show_list}), 200)
+        else:
+            show = Show.query.filter_by(id = show_id).first()
+            if not show:
+                errorMessages.append("There is no show")
+                raise BadRequest(error_messages=errorMessages)
+            else:
+                show_data = {
+                "id": show.id,
+                "name": show.storedName,
+                "rating": show.storedRating,
+                "price": show.storedPrice,
+                "tags": show.storedtags,
+                "date": show.date,
+                "startTime": show.startTime,
+                "endTime": show.endTime,
+                "created_by": user.id
+                # Add more fields as needed
+                }
+                return make_response(jsonify(show_data), 200)
 
 
         
