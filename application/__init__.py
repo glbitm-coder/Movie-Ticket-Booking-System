@@ -45,7 +45,7 @@ def create_app():
     api.add_resource(LoginAPI, "/login")
     api.add_resource(SignUpAPI, "/signup")
     api.add_resource(RoleAPI, "/api/roles")
-    api.add_resource(TheatreAPI, "/user/<int:user_id>/theatre_api", "/user/<int:user_id>/theatre_api/<int:theatre_id>")
+    api.add_resource(TheatreAPI, "/user/<int:user_id>/theatre_api", "/user/<int:user_id>/theatre_api/<int:theatre_id>", "/theatre_api")
     api.add_resource(ShowAPI, "/user/<int:user_id>/theatre/<int:theatre_id>/show_api",
                      "/user/<int:user_id>/theatre/<int:theatre_id>/show_api/<int:show_id>")
     # api.add_resource(UserAPI, "/api/user/<int:user_id>")

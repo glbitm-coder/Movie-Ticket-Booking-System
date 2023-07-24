@@ -77,7 +77,7 @@ class TheatreAPI(Resource):
                 }), 201)
     
     @jwt_required()
-    def get(self, user_id = None, theatre_id = None):
+    def get(self, user_id, theatre_id = None):
         
 
         errorMessages = []
@@ -86,12 +86,12 @@ class TheatreAPI(Resource):
         current_user_id = get_jwt_identity()
         if user_id is not None and user_id != current_user_id:
             errorMessages.append("Unautorized")
-            return UnAuthorizedError(error_messages=errorMessages)
+            raise UnAuthorizedError(error_messages=errorMessages)
         
         user = User.query.filter_by(id = user_id).first()
         if not user:
             errorMessages.append("User not found")
-            return NotFoundError(error_messages=errorMessages)
+            raise NotFoundError(error_messages=errorMessages)
         
         if theatre_id is None:
             theatres = user.theatres_created.all()
@@ -140,7 +140,46 @@ class TheatreAPI(Resource):
                 # Add more fields as needed
                 }
                 return make_response(jsonify(theatre_data), 200)
+    
+    @jwt_required()
+    def get(self):
         
+        errorMessages = []
+        theatre_list = []
+
+        theatres = Theatre.query.all()
+
+        for theatre in theatres:
+            theatre_data = {
+                "id": theatre.id,
+                "name": theatre.storedName,
+                "place": theatre.storedPlace,
+                "capacity": theatre.storedCapacity,
+                "image": theatre.storedImage,
+                "shows": []
+            }
+
+            for show in theatre.shows:
+                show_data = {
+                    "id": show.id,
+                    "name": show.storedName,
+                    "rating": show.storedRating,
+                    "price": show.storedPrice,
+                    "tags": show.storedTags,
+                    "date": show.date.strftime("%Y-%m-%d"),
+                    "startTime": show.startTime.strftime("%H:%M"),
+                    "endTime": show.endTime.strftime("%H:%M")
+                    # Add more fields as needed
+                }
+                theatre_data["shows"].append(show_data)
+
+            theatre_list.append(theatre_data)
+
+        if not theatre_list:
+            errorMessages.append("There are no theatres")
+            raise NotFoundError(error_messages=errorMessages)
+
+        return make_response(jsonify({"theatres": theatre_list}), 200)
 
     @jwt_required()
     def put(self, user_id = None, theatre_id = None):

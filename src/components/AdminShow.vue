@@ -410,6 +410,17 @@ export default {
         const data = await result.json();
         if (result.ok) {
           this.$store.commit('setNotification', { variant: 'success', message: data.message });
+          const newShow = {
+            id: data.id, // Assuming the API returns the ID of the newly created show
+            name: this.addShowData.name,
+            price: this.addShowData.price,
+            rating: 0,
+            date: this.addShowData.date, 
+            startTime: this.addShowData.startTime, 
+            endTime: this.addShowData.endTime,
+            tags: this.addShowData.tags.join(",")
+          };
+          theatre.shows.push(newShow);
         }
         else {
           this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
