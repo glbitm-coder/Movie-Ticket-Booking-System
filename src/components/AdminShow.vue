@@ -31,10 +31,65 @@
             <template #button-content>
               Actions
             </template>
-            <b-dropdown-item @click="editShow(show.id)">Edit Show</b-dropdown-item>
-            <b-dropdown-item @click="deleteShow(show.id)">Delete Show</b-dropdown-item>
+            <b-dropdown-item @click="editShow(show)">Edit Show</b-dropdown-item>
+            <b-dropdown-item @click="deleteShow(theatre, show)">Delete Show</b-dropdown-item>
           </b-dropdown>
         </div>
+        <b-modal id="admin-edit-show-modal" v-model="showEditShowModal" size="lg" variant="primary" no-close-on-backdrop>
+          <template #modal-header>
+            <h3 class="mb-0">Edit Show</h3>
+          </template>
+          <template #default>
+            <div class="form-group">
+              <div id="admin-show-error-message" v-if="(errorMessages.length > 0 || serverErrorMessages.length > 0) && isEditSubmitButtonClicked" class="admin-show-error-message">
+                  <ul>
+                      <template v-if="errorMessages.length > 0">
+                        <li v-for="errorMessage in errorMessages" :key="errorMessage">{{ errorMessage }}</li>
+                      </template>
+                      <template v-else-if="serverErrorMessages.length > 0">
+                        <li v-for="serverErrorMessage in serverErrorMessages" :key="serverErrorMessage">{{ serverErrorMessage }}</li>
+                      </template>
+                  </ul>
+              </div>
+              <label for="name">Name:</label>
+              <input type="text" id="name" class="form-control" v-model="editShowData.name" />
+            </div>
+            <div class="form-group">
+              <label for="price">Price:</label>
+              <input type="number" id="price" class="form-control" v-model="editShowData.price" />
+            </div>
+            <div class="form-group">
+              <label for="date">Date:</label>
+              <input type="date" id="date" class="form-control" v-model="editShowData.date" />
+            </div>
+            <div class="form-group">
+              <label for="startTime">Start Time:</label>
+              <input type="time" id="startTime" class="form-control" v-model="editShowData.startTime" />
+            </div>
+            <div class="form-group">
+              <label for="endTime">End Time:</label>
+              <input type="time" id="endTime" class="form-control" v-model="editShowData.endTime" />
+            </div>
+            <div class="form-group">
+              <label for="tags">Tags:</label>
+              <select id="tags" class="form-control" v-model="editShowData.tags" multiple>
+                <option value="drama">Drama</option>
+                <option value="thriller">Thriller</option>
+                <option value="action">Action</option>
+                <option value="romance">Romance</option>
+                <option value="comedy">Comedy</option>
+                <option value="fiction">Fiction</option>
+                <option value="sports">Sports</option>
+                <option value="horror">Horror</option>
+                <!-- Add more options as needed -->
+              </select>
+            </div>
+          </template>
+          <template #modal-footer>
+            <b-btn class="primary" @click="submitEditShowForm(theatre, show)">Submit</b-btn>
+            <b-btn @click="closeEditShowModal">Close</b-btn>
+          </template>
+        </b-modal>
       </div>
     </div>
     <div class="theatre-circle-container">
@@ -61,12 +116,12 @@
                   </template>
               </ul>
           </div>
-          <label for="place">Name:</label>
-          <input type="text" id="place" class="form-control" v-model="addShowData.name" />
+          <label for="name">Name:</label>
+          <input type="text" id="name" class="form-control" v-model="addShowData.name" />
         </div>
         <div class="form-group">
-          <label for="capacity">Price:</label>
-          <input type="number" id="capacity" class="form-control" v-model="addShowData.price" />
+          <label for="price">Price:</label>
+          <input type="number" id="price" class="form-control" v-model="addShowData.price" />
         </div>
         <div class="form-group">
           <label for="date">Date:</label>
@@ -98,61 +153,6 @@
       <template #modal-footer>
         <b-btn class="primary" @click="submitAddShowForm(theatre)">Submit</b-btn>
         <b-btn @click="closeAddShowModal">Close</b-btn>
-      </template>
-    </b-modal>
-    <b-modal id="edmit-edit-show-modal" v-model="showEditShowModal" size="lg" variant="primary" no-close-on-backdrop>
-      <template #modal-header>
-        <h3 class="mb-0">Edit Show</h3>
-      </template>
-      <template #default>
-        <div class="form-group">
-          <div id="admin-show-error-message" v-if="(errorMessages.length > 0 || serverErrorMessages.length > 0) && isEditSubmitButtonClicked" class="admin-show-error-message">
-              <ul>
-                  <template v-if="errorMessages.length > 0">
-                    <li v-for="errorMessage in errorMessages" :key="errorMessage">{{ errorMessage }}</li>
-                  </template>
-                  <template v-else-if="serverErrorMessages.length > 0">
-                    <li v-for="serverErrorMessage in serverErrorMessages" :key="serverErrorMessage">{{ serverErrorMessage }}</li>
-                  </template>
-              </ul>
-          </div>
-          <label for="place">Name:</label>
-          <input type="text" id="place" class="form-control" v-model="editShowData.name" />
-        </div>
-        <div class="form-group">
-          <label for="capacity">Price:</label>
-          <input type="number" id="capacity" class="form-control" v-model="editShowData.price" />
-        </div>
-        <div class="form-group">
-          <label for="date">Date:</label>
-          <input type="date" id="date" class="form-control" v-model="editShowData.date" />
-        </div>
-        <div class="form-group">
-          <label for="startTime">Start Time:</label>
-          <input type="time" id="startTime" class="form-control" v-model="editShowData.startTime" />
-        </div>
-        <div class="form-group">
-          <label for="endTime">End Time:</label>
-          <input type="time" id="endTime" class="form-control" v-model="editShowData.endTime" />
-        </div>
-        <div class="form-group">
-          <label for="tags">Tags:</label>
-          <select id="tags" class="form-control" v-model="editShowData.tags" multiple>
-            <option value="drama">Drama</option>
-            <option value="thriller">Thriller</option>
-            <option value="action">Action</option>
-            <option value="romance">Romance</option>
-            <option value="comedy">Comedy</option>
-            <option value="fiction">Fiction</option>
-            <option value="sports">Sports</option>
-            <option value="horror">Horror</option>
-            <!-- Add more options as needed -->
-          </select>
-        </div>
-      </template>
-      <template #modal-footer>
-        <b-btn class="primary" @click="submitEditShowForm(theatre)">Submit</b-btn>
-        <b-btn @click="closeEditShowModal">Close</b-btn>
       </template>
     </b-modal>
     <Notification v-if="$store.state.notification" :variant="$store.state.notification.variant" 
@@ -218,9 +218,37 @@ export default {
         name: "",
         price: null,
         rating: 0,
+        date: null, 
+        startTime: null, 
+        endTime: null,
         tags: []
       }
-
+    },
+    editShow(show){
+      this.showEditShowModal = true;
+      this.editShowData = {
+          id: show.id,
+          name: show.name,
+          price: show.price,
+          rating: show.rating,
+          date: show.date, 
+          startTime: show.startTime, 
+          endTime: show.endTime,
+          tags: show.tags.split(',')
+      };
+    },
+    closeEditShowModal(){
+      this.showEditShowModal = false;
+      this.editShowData = {
+        id: null,
+        name: "",
+        price: null,
+        rating: 0,
+        date: null, 
+        startTime: null, 
+        endTime: null,
+        tags: []
+      }
     },
     validateEachEntity(entityToValidate, message) {
       if (this.errorMessages.includes(message)) {
@@ -236,28 +264,28 @@ export default {
         }
       }
     },
-    addShowValidation() {
+    validation(entity) {
       let message = 'Name cannot be empty'
-      this.validateEachEntity(this.addShowData.name, message);
+      this.validateEachEntity(entity.name, message);
 
-      message = 'Place cannot be empty';
-      this.validateEachEntity(this.addShowData.price, message);
+      message = 'Price cannot be empty';
+      this.validateEachEntity(entity.price, message);
 
       message = 'Date cannot be empty';
-      this.validateEachEntity(this.addShowData.date, message);
+      this.validateEachEntity(entity.date, message);
 
       const currentDate = new Date();
-      const selectedDate = new Date(this.addShowData.date);
+      const selectedDate = new Date(entity.date);
       message = 'Selected date cannot be in the past';
       if (this.errorMessages.includes(message)) {
         let indexOFMessage = this.errorMessages.indexOf(message);
         this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
-        if (this.addShowData.date != null && selectedDate.getDate() < currentDate.getDate()) {
+        if (entity.date != null && selectedDate.getDate() < currentDate.getDate()) {
           this.errorMessages.splice(indexOFMessage, 0, message);
         }
       }
       else {
-        if (this.addShowData.date != null && selectedDate.getDate() < currentDate.getDate()) {
+        if (entity.date != null && selectedDate.getDate() < currentDate.getDate()) {
           this.errorMessages.push(message);
         }
       }
@@ -265,21 +293,21 @@ export default {
 
       // Start time and End time validation
       message = 'Start time cannot be empty';
-      this.validateEachEntity(this.addShowData.startTime, message);
+      this.validateEachEntity(entity.startTime, message);
 
       message = 'End time cannot be empty';
-      this.validateEachEntity(this.addShowData.endTime, message);
+      this.validateEachEntity(entity.endTime, message);
 
       const selectedStartTime = new Date();
-      if (this.addShowData.startTime != null) {
-        selectedStartTime.setHours(Number(this.addShowData.startTime.slice(0, 2)));
-        selectedStartTime.setMinutes(Number(this.addShowData.startTime.slice(3)));
+      if (entity.startTime != null) {
+        selectedStartTime.setHours(Number(entity.startTime.slice(0, 2)));
+        selectedStartTime.setMinutes(Number(entity.startTime.slice(3)));
       }
 
       const selectedEndTime = new Date();
-      if (this.addShowData.endTime != null) {
-        selectedEndTime.setHours(Number(this.addShowData.endTime.slice(0, 2)));
-        selectedEndTime.setMinutes(Number(this.addShowData.endTime.slice(3)));
+      if (entity.endTime != null) {
+        selectedEndTime.setHours(Number(entity.endTime.slice(0, 2)));
+        selectedEndTime.setMinutes(Number(entity.endTime.slice(3)));
       }
 
       message = 'Start time cannot be before or equal to the current time';
@@ -288,7 +316,7 @@ export default {
         this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
         if (selectedDate.getDate() === currentDate.getDate() && selectedDate.getFullYear() === currentDate.getFullYear() && selectedDate.getMonth() === currentDate.getMonth()) {
           const currentTime = new Date();
-          if (this.addShowData.startTime != null && selectedStartTime <= currentTime) {
+          if (entity.startTime != null && selectedStartTime <= currentTime) {
             this.errorMessages.splice(indexOFMessage, 0, message);
           }
         }
@@ -296,7 +324,7 @@ export default {
       else {
         if (selectedDate.getDate() === currentDate.getDate() && selectedDate.getFullYear() === currentDate.getFullYear() && selectedDate.getMonth() === currentDate.getMonth()) {
           const currentTime = new Date();
-          if (this.addShowData.startTime != null && selectedStartTime <= currentTime) {
+          if (entity.startTime != null && selectedStartTime <= currentTime) {
             this.errorMessages.push(message);
           }
         }
@@ -308,7 +336,7 @@ export default {
         this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
         if (selectedDate.getDate() === currentDate.getDate() && selectedDate.getFullYear() === currentDate.getFullYear() && selectedDate.getMonth() === currentDate.getMonth()) {
           const currentTime = new Date();
-          if (this.addShowData.endTime != null && selectedStartTime <= currentTime) {
+          if (entity.endTime != null && selectedStartTime <= currentTime) {
             this.errorMessages.splice(indexOFMessage, 0, message);
           }
         }
@@ -316,7 +344,7 @@ export default {
       else {
         if (selectedDate.getDate() === currentDate.getDate() && selectedDate.getFullYear() === currentDate.getFullYear() && selectedDate.getMonth() === currentDate.getMonth()) {
           const currentTime = new Date();
-          if (this.addShowData.endTime != null && selectedEndTime <= currentTime) {
+          if (entity.endTime != null && selectedEndTime <= currentTime) {
             this.errorMessages.push(message);
           }
         }
@@ -326,13 +354,13 @@ export default {
       if (this.errorMessages.includes(message)) {
         let indexOFMessage = this.errorMessages.indexOf(message);
         this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
-        if (this.addShowData.endTime != null && this.addShowData.startTime != null && selectedEndTime <= selectedStartTime) {
+        if (entity.endTime != null && entity.startTime != null && selectedEndTime <= selectedStartTime) {
           this.errorMessages.splice(indexOFMessage, 0, message);
         }
 
       }
       else {
-        if (this.addShowData.endTime != null && this.addShowData.startTime != null && selectedEndTime <= selectedStartTime) {
+        if (entity.endTime != null && entity.startTime != null && selectedEndTime <= selectedStartTime) {
           this.errorMessages.push(message);
 
         }
@@ -343,13 +371,13 @@ export default {
       if (this.errorMessages.includes(message)) {
         let indexOFMessage = this.errorMessages.indexOf(message);
         this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
-        if (this.addShowData.tags.length === 0) {
+        if (entity.tags.length === 0) {
           this.errorMessages.splice(indexOFMessage, 0, message);
         }
 
       }
       else {
-        if (this.addShowData.tags.length === 0) {
+        if (entity.tags.length === 0) {
           this.errorMessages.push(message);
 
         }
@@ -357,7 +385,7 @@ export default {
     },
     async submitAddShowForm(theatre) {
       this.isAddSubmitButtonClicked = true;
-      this.addShowValidation();
+      this.validation(this.addShowData);
       if (this.errorMessages.length > 0) {
         return;
       }
@@ -388,6 +416,74 @@ export default {
         }
         this.closeAddShowModal();
       })
+    },
+    async submitEditShowForm(theatre, show){
+      this.isEditSubmitButtonClicked = true;
+      this.validation(this.editShowData);
+      if (this.errorMessages.length > 0) {
+        return;
+      }
+
+      if (this.editShowData.name === show.name && this.editShowData.price === show.price && this.editShowData.date === show.date
+      && this.editShowData.startTime === show.startTime && this.editShowData.endTime === show.endTime && this.editShowData.tags.join(",") === show.tags) {
+        this.$store.commit('setNotification', { variant: 'info', message: 'No changes detected!' });
+        this.closeEditShowModal();
+        return;
+      }
+
+      const user_id = parseInt(localStorage.getItem('userId')); 
+      const tagsString = this.editShowData.tags.join(",");
+      const response = await fetch(`http://127.0.0.1:5000/user/${user_id}/theatre/${theatre.id}/show_api/${show.id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          input_name: this.editShowData.name,
+          input_price: this.editShowData.price,
+          input_date: this.editShowData.date,
+          input_startTime: this.editShowData.startTime,
+          input_endTime: this.editShowData.endTime,
+          input_tags: tagsString
+        })
+      }).then(async result => {
+        const data = await result.json();
+        if (result.ok) {
+          this.$store.commit('setNotification', { variant: 'success', message: data.message });
+          show.name = this.editShowData.name;
+          show.price = this.editShowData.price;
+          show.date = this.editShowData.date;
+          show.startTime = this.editShowData.startTime;
+          show.endTime = this.editShowData.endTime;
+          show.tags = this.editShowData.tags.join(",");
+        }
+        else {
+          this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
+        }
+        this.closeEditShowModal();
+      })
+    },
+    async deleteShow(theatre, show){
+      const confirmDelete = window.confirm('Are you sure you want to delete this theatre?');
+      if (confirmDelete) {
+        const user_id = parseInt(localStorage.getItem('userId')); 
+        const response = await fetch(`http://127.0.0.1:5000/user/${user_id}/theatre/${theatre.id}/show_api/${show.id}`, {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+                    },
+                }).then(async result => {
+                    const data = await result.json();
+                    if (result.ok) {
+                        this.$store.commit('setNotification', { variant: 'success', message: data.message });
+                        theatre.shows = theatre.shows.filter((s) => s.id !== show.id);
+                    }
+                    else {
+                        this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
+                    }
+                })
+      }
     }
   }
 }

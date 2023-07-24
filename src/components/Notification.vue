@@ -37,10 +37,18 @@
   }
   
   .success {
-    background-color: lightgreen;
+    background-color: rgb(32, 204, 32);
   }
   
   .error {
-    background-color: lightsalmon;
+    background-color: red;
+  }
+
+  .warning {
+    background-color: yellow;
+  }
+
+  .info{
+    background-color: rgb(34, 89, 207);
   }
   </style>
