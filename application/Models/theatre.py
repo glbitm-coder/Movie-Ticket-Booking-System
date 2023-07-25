@@ -11,3 +11,5 @@ class Theatre(db.Model, UserMixin):
     storedImage = db.Column(db.String, default="", unique=True, nullable=False)
     createdby_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     shows = db.relationship('Show', secondary='show_theatre_association', back_populates='theatres')
+    bookings = db.relationship('Booking', backref='theatre', cascade="all,delete")
+    ratings = db.relationship('Rating', backref='theatre', cascade="all,delete")

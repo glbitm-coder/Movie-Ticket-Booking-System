@@ -11,8 +11,3 @@ class User(db.Model, UserMixin):
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
     theatres_created = db.relationship('Theatre', backref='creator', lazy='dynamic', cascade="all,delete")
     shows_created = db.relationship('Show', backref='creator', lazy='dynamic', cascade="all,delete")
-    # stored_blogs = db.relationship('Blog', backref='user', lazy='dynamic',cscade="all,delete")
-    # stored_comments = db.relationship('Comment', backref='user',cascade="all,delete" )
-    # stored_likes = db.relationship('Like', backref='user', cascade="all,delete")
-    # stored_followers = db.relationship('Follow',foreign_keys=[Follow.stored_following_id], backref='user',lazy='dynamic', cascade="all,delete")
-    # stored_following = db.relationship('Follow',foreign_keys=[Follow.stored_follower_id], backref='user2',lazy='dynamic', cascade="all,delete")
