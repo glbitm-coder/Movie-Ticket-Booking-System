@@ -59,6 +59,8 @@ def create_app():
     from .Models.show import Show
     from .Models.theatre import Theatre
     from .Models.show_theatre import ShowTheatreAssociation
+    from .Models.booking import Booking
+    from .Models.rating import Rating
 
     with app.app_context():
         create_database()

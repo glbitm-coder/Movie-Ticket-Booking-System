@@ -17,6 +17,45 @@
                 <p><strong>Date:</strong> {{ show.date }}</p>
                 <p><strong>Tags:</strong> {{ show.tags }}</p>
                 <p><strong>Price:</strong> {{ show.price }}</p>
+                <b-btn class="success" v-if="theatre.bookings.length !== theatre.capacity" @click="openBookingModal(theatre)">Book</b-btn>
+                <b-btn class="danger" v-else>Housefull</b-btn>
+                <b-modal id="user-book-modal" v-model="showBookingModal" size="lg" variant="primary" no-close-on-backdrop>
+                  <template #modal-header>
+                    <h3 class="mb-0">Book</h3>
+                  </template>
+                  <template #default>
+                    <div class="form-group">
+                      <div id="user-book-error-message" v-if="(errorMessages.length > 0 || serverErrorMessages.length > 0) && isSubmitButtonClicked" class="user-book-error-message">
+                          <ul>
+                              <template v-if="errorMessages.length > 0">
+                                <li v-for="errorMessage in errorMessages" :key="errorMessage">{{ errorMessage }}</li>
+                              </template>
+                              <template v-else-if="serverErrorMessages.length > 0">
+                                <li v-for="serverErrorMessage in serverErrorMessages" :key="serverErrorMessage">{{ serverErrorMessage }}</li>
+                              </template>
+                          </ul>
+                      </div>
+                      <label for="available-seats">Available seats:</label>
+                      <input type="text" id="available-seats" class="form-control" v-model="availableSeats" disabled/>
+                    </div>
+                    <div class="form-group">
+                      <label for="number-of-tickets">Number of Tickets:</label>
+                      <input type="number" id="number-of-tickets" class="form-control" v-model="numberOfTickets" />
+                    </div>
+                    <div class="form-group">
+                      <label for="price">Price:</label>
+                      <input type="text" id="price" class="form-control" v-model="show.price" disabled/>
+                    </div>
+                    <div class="form-group">
+                      <label for="total_price">Total Price:</label>
+                      <input type="text" id="total_price" class="form-control" v-model="totalPrice" disabled/>
+                    </div>
+                  </template>
+                  <template #modal-footer>
+                    <b-btn class="primary" @click="submitBooking">Confirm Booking</b-btn>
+                    <b-btn @click="closeBookingModal">Close</b-btn>
+                  </template>
+                </b-modal>
                 <!-- Add more show details as needed -->
               </div>
             </div>
@@ -37,15 +76,31 @@ export default {
   },
   data() {
     return {
-      theatres: []
+      theatres: [],
+      errorMessages: [],
+      serverErrorMessages: [],
+      isSubmitButtonClicked: false,
+      showBookingModal: false,
+      availableSeats: 0,
+      numberOfTickets: 0,
+      totalPrice: 0
     };
   },
   created() {
     this.fetchTheatres();
   },
   methods: {
+    openBookingModal(theatre){
+      this.showBookingModal = true;
+      this.availableSeats = theatre.capacity - theatre.bookings.length;
+    },
+    closeBookingModal(){
+      this.showBookingModal = false;
+      
+    },
     async fetchTheatres() {
-      const response = await fetch(`http://127.0.0.1:5000/theatre_api`, {
+      const user_id = parseInt(localStorage.getItem('userId'));
+      const response = await fetch(`http://127.0.0.1:5000/user/${user_id}/theatre_api`, {
         method: 'GET',
         headers: {
           Authorization: 'Bearer ' + localStorage.getItem('access_token'),
@@ -96,6 +151,8 @@ export default {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  height: 245px;
+  overflow-y: auto;
 }
 
 .show-row {
@@ -110,5 +167,9 @@ export default {
   padding: 10px;
   border: 1px solid #ccc;
   background-color: greenyellow;
+}
+.shows-scroll-wrapper {
+  height: 300px; /* Set a fixed height for scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
 }
 </style>

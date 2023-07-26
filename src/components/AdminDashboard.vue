@@ -289,7 +289,8 @@ export default {
 
         }
         else {
-          this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
+          if(!data.error_messages.includes("There are no theatres"))
+            this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
         }
       })
     }

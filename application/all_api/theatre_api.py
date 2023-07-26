@@ -77,7 +77,7 @@ class TheatreAPI(Resource):
                 }), 201)
     
     @jwt_required()
-    def get(self, user_id, theatre_id = None):
+    def get(self, user_id = None, theatre_id = None):
         
 
         errorMessages = []
@@ -85,101 +85,122 @@ class TheatreAPI(Resource):
 
         current_user_id = get_jwt_identity()
         if user_id is not None and user_id != current_user_id:
-            errorMessages.append("Unautorized")
+            errorMessages.append("Unauthorized")
             raise UnAuthorizedError(error_messages=errorMessages)
-        
-        user = User.query.filter_by(id = user_id).first()
+
+        user = User.query.filter_by(id=user_id).first()
         if not user:
             errorMessages.append("User not found")
             raise NotFoundError(error_messages=errorMessages)
-        
+
         if theatre_id is None:
-            theatres = user.theatres_created.all()
+            if user.role_id == 2:
+                theatres = user.theatres_created.all()
+            else:
+                theatres = Theatre.query.all()
+
             for theatre in theatres:
                 theatre_data = {
-                "id": theatre.id,
-                "name": theatre.storedName,
-                "place": theatre.storedPlace,
-                "capacity": theatre.storedCapacity,
-                "image": theatre.storedImage,
-                "shows": []
+                    "id": theatre.id,
+                    "name": theatre.storedName,
+                    "place": theatre.storedPlace,
+                    "capacity": theatre.storedCapacity,
+                    "image": theatre.storedImage,
+                    "shows": [],
+                    "bookings": [],
+                    "ratings": []
                 }
+
                 for show in theatre.shows:
                     show_data = {
                         "id": show.id,
                         "name": show.storedName,
-                        "rating": show.storedRating,
                         "price": show.storedPrice,
                         "tags": show.storedTags,
-                        "date": show.date.strftime("%Y-%m-%d"),  
-                        "startTime": show.startTime.strftime("%H:%M"), 
-                        "endTime": show.endTime.strftime("%H:%M") 
-                        # Add more fields as needed
+                        "date": show.date.strftime("%Y-%m-%d"),
+                        "startTime": show.startTime.strftime("%H:%M"),
+                        "endTime": show.endTime.strftime("%H:%M"),
+                        "bookings": [],
+                        "ratings": []
                     }
+
+                    for booking in show.bookings:
+                        booking_data = {
+                            "id": booking.id,
+                            "number_of_tickets": booking.number_of_tickets,
+                            "total_price": booking.total_price,
+                            # Add more fields as needed
+                        }
+                        show_data["bookings"].append(booking_data)
+
+                    for rating in show.ratings:
+                        rating_data = {
+                            "id": rating.id,
+                            "rating": rating.rating,
+                            # Add more fields as needed
+                        }
+                        show_data["ratings"].append(rating_data)
+
                     theatre_data["shows"].append(show_data)
+
                 theatre_list.append(theatre_data)
 
-            if theatres is None:
-                errorMessages.append("There is no theatre")
+            if not theatre_list:
+                errorMessages.append("There are no theatres")
                 raise NotFoundError(error_messages=errorMessages)
-            else:
-                return make_response(jsonify({"theatres": theatre_list}), 200)
+
+            return make_response(jsonify({"theatres": theatre_list}), 200)
+
         else:
-            theatre = Theatre.query.filter_by(id = theatre_id).first()
+            theatre = Theatre.query.filter_by(id=theatre_id).first()
             if not theatre:
                 errorMessages.append("There is no theatre")
                 raise BadRequest(error_messages=errorMessages)
             else:
                 theatre_data = {
-                "id": theatre.id,
-                "name": theatre.storedName,
-                "place": theatre.storedPlace,
-                "capacity": theatre.storedCapacity,
-                "image": theatre.storedImage,
-                "shows": theatre.shows
-                # Add more fields as needed
+                    "id": theatre.id,
+                    "name": theatre.storedName,
+                    "place": theatre.storedPlace,
+                    "capacity": theatre.storedCapacity,
+                    "image": theatre.storedImage,
+                    "shows": [],
+                    "bookings": [],
+                    "ratings": []
                 }
+
+                for show in theatre.shows:
+                    show_data = {
+                        "id": show.id,
+                        "name": show.storedName,
+                        "price": show.storedPrice,
+                        "tags": show.storedTags,
+                        "date": show.date.strftime("%Y-%m-%d"),
+                        "startTime": show.startTime.strftime("%H:%M"),
+                        "endTime": show.endTime.strftime("%H:%M"),
+                        "bookings": [],
+                        "ratings": []
+                    }
+
+                    for booking in show.bookings:
+                        booking_data = {
+                            "id": booking.id,
+                            "number_of_tickets": booking.number_of_tickets,
+                            "total_price": booking.total_price,
+                            # Add more fields as needed
+                        }
+                        show_data["bookings"].append(booking_data)
+
+                    for rating in show.ratings:
+                        rating_data = {
+                            "id": rating.id,
+                            "rating": rating.rating,
+                            # Add more fields as needed
+                        }
+                        show_data["ratings"].append(rating_data)
+
+                    theatre_data["shows"].append(show_data)
+
                 return make_response(jsonify(theatre_data), 200)
-    
-    @jwt_required()
-    def get(self):
-        
-        errorMessages = []
-        theatre_list = []
-
-        theatres = Theatre.query.all()
-
-        for theatre in theatres:
-            theatre_data = {
-                "id": theatre.id,
-                "name": theatre.storedName,
-                "place": theatre.storedPlace,
-                "capacity": theatre.storedCapacity,
-                "image": theatre.storedImage,
-                "shows": []
-            }
-
-            for show in theatre.shows:
-                show_data = {
-                    "id": show.id,
-                    "name": show.storedName,
-                    "rating": show.storedRating,
-                    "price": show.storedPrice,
-                    "tags": show.storedTags,
-                    "date": show.date.strftime("%Y-%m-%d"),
-                    "startTime": show.startTime.strftime("%H:%M"),
-                    "endTime": show.endTime.strftime("%H:%M")
-                    # Add more fields as needed
-                }
-                theatre_data["shows"].append(show_data)
-
-            theatre_list.append(theatre_data)
-
-        if not theatre_list:
-            errorMessages.append("There are no theatres")
-            raise NotFoundError(error_messages=errorMessages)
-
-        return make_response(jsonify({"theatres": theatre_list}), 200)
 
     @jwt_required()
     def put(self, user_id = None, theatre_id = None):
@@ -190,13 +211,13 @@ class TheatreAPI(Resource):
         if user_id is not None and user_id != current_user_id:
             errorMessages.append("Unautorized")
             return UnAuthorizedError(error_messages=errorMessages)
-        
-        user = User.query.filter_by(id = user_id).first()
+
+        user = User.query.filter_by(id=user_id).first()
         if not user:
             errorMessages.append("User not found")
             return NotFoundError(error_messages=errorMessages)
 
-        theatre = Theatre.query.filter_by(id = theatre_id).first()
+        theatre = Theatre.query.filter_by(id=theatre_id).first()
         if not theatre:
             errorMessages.append("There is no theatre")
             raise BadRequest(error_messages=errorMessages)
@@ -214,14 +235,50 @@ class TheatreAPI(Resource):
             theatre.storedCapacity = input_capacity
 
         db.session.commit()
+
         theatre_data = {
             "id": theatre.id,
             "name": theatre.storedName,
             "place": theatre.storedPlace,
             "capacity": theatre.storedCapacity,
             "image": theatre.storedImage,
-            "message": "Successfully updated the theatre"
+            "shows": [],
+            "bookings": [],
+            "ratings": []
         }
+
+        for show in theatre.shows:
+            show_data = {
+                "id": show.id,
+                "name": show.storedName,
+                "price": show.storedPrice,
+                "tags": show.storedTags,
+                "date": show.date.strftime("%Y-%m-%d"),
+                "startTime": show.startTime.strftime("%H:%M"),
+                "endTime": show.endTime.strftime("%H:%M"),
+                "bookings": [],
+                "ratings": []
+            }
+
+            for booking in show.bookings:
+                booking_data = {
+                    "id": booking.id,
+                    "number_of_tickets": booking.number_of_tickets,
+                    "total_price": booking.total_price,
+                    # Add more fields as needed
+                }
+                show_data["bookings"].append(booking_data)
+
+            for rating in show.ratings:
+                rating_data = {
+                    "id": rating.id,
+                    "rating": rating.rating,
+                    # Add more fields as needed
+                }
+                show_data["ratings"].append(rating_data)
+
+            theatre_data["shows"].append(show_data)
+
         return make_response(jsonify(theatre_data), 200)
     
 
