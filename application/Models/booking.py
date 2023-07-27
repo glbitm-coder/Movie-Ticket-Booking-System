@@ -8,4 +8,4 @@ class Booking(db.Model):
     total_price = db.Column(db.Integer, nullable=False)
     show_id = db.Column(db.Integer, db.ForeignKey('show.id'), nullable=False)
     theatre_id = db.Column(db.Integer, db.ForeignKey('theatre.id'), nullable=False)
-
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

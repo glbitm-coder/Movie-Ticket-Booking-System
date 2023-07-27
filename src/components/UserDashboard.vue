@@ -17,7 +17,7 @@
                 <p><strong>Date:</strong> {{ show.date }}</p>
                 <p><strong>Tags:</strong> {{ show.tags }}</p>
                 <p><strong>Price:</strong> {{ show.price }}</p>
-                <b-btn class="success" v-if="theatre.bookings.length !== theatre.capacity" @click="openBookingModal(theatre)">Book</b-btn>
+                <b-btn class="success" v-if="isTheatreNotHousefull(theatre)" @click="openBookingModal(theatre, show)">Book</b-btn>
                 <b-btn class="danger" v-else>Housefull</b-btn>
                 <b-modal id="user-book-modal" v-model="showBookingModal" size="lg" variant="primary" no-close-on-backdrop>
                   <template #modal-header>
@@ -36,7 +36,7 @@
                           </ul>
                       </div>
                       <label for="available-seats">Available seats:</label>
-                      <input type="text" id="available-seats" class="form-control" v-model="availableSeats" disabled/>
+                      <input type="number" id="available-seats" class="form-control" v-model="availableSeats" disabled/>
                     </div>
                     <div class="form-group">
                       <label for="number-of-tickets">Number of Tickets:</label>
@@ -44,15 +44,15 @@
                     </div>
                     <div class="form-group">
                       <label for="price">Price:</label>
-                      <input type="text" id="price" class="form-control" v-model="show.price" disabled/>
+                      <input type="number" id="price" class="form-control" v-model="price" disabled/>
                     </div>
                     <div class="form-group">
                       <label for="total_price">Total Price:</label>
-                      <input type="text" id="total_price" class="form-control" v-model="totalPrice" disabled/>
+                      <input type="number" id="total_price" class="form-control" v-model="totalPrice" disabled/>
                     </div>
                   </template>
                   <template #modal-footer>
-                    <b-btn class="primary" @click="submitBooking">Confirm Booking</b-btn>
+                    <b-btn class="primary" @click="submitBooking(theatre, show)">Confirm Booking</b-btn>
                     <b-btn @click="closeBookingModal">Close</b-btn>
                   </template>
                 </b-modal>
@@ -63,16 +63,19 @@
         </div>
       </div>
     </div>
+    <Notification v-if="$store.state.notification" :variant="$store.state.notification.variant" 
+        :message="$store.state.notification.message" @clear-notification="clearNotification"/>
   </div>
 </template>
 
 <script>
 import Home from './Home.vue'
+import Notification from './Notification.vue'
 
 export default {
   name: 'UserDashboard',
   components: {
-    Home
+    Home,Notification
   },
   data() {
     return {
@@ -83,20 +86,47 @@ export default {
       showBookingModal: false,
       availableSeats: 0,
       numberOfTickets: 0,
-      totalPrice: 0
+      totalPrice: 0,
+      price: 0,
+      currentTheatre: null,
+      currentShow: null,
     };
   },
   created() {
     this.fetchTheatres();
   },
+  watch: {
+    numberOfTickets: function(newValue) {
+      // Calculate the total price by multiplying the number of tickets with the show price.
+      this.totalPrice = newValue * this.price;
+    }
+  },
   methods: {
-    openBookingModal(theatre){
+    clearNotification() {
+            this.$store.commit('clearNotification');
+        },
+    openBookingModal(theatre, show){
+      this.currentTheatre = theatre; // Store the current theatre
+      this.currentShow = show; 
       this.showBookingModal = true;
-      this.availableSeats = theatre.capacity - theatre.bookings.length;
+      this.availableSeats = theatre.capacity;
+      const bookedTickets = theatre.bookings.reduce((totalTickets, booking) => totalTickets + booking.number_of_tickets, 0);
+      this.availableSeats -= bookedTickets;
+      this.price = show.price;
+
     },
     closeBookingModal(){
       this.showBookingModal = false;
+      this.availableSeats = 0;
+      this.price = 0;
       
+    },
+    isTheatreNotHousefull(theatre){
+      const bookedTickets = theatre.bookings.reduce((totalTickets, booking) => totalTickets + booking.number_of_tickets, 0);
+      if(bookedTickets === theatre.capacity){
+        return false;
+      }
+      return true;
     },
     async fetchTheatres() {
       const user_id = parseInt(localStorage.getItem('userId'));
@@ -127,11 +157,72 @@ export default {
       }
       return chunkedArr;
     },
+    validation() {
+
+      let message = 'Number of tickets cannot be 0 or empty'
+      if (this.errorMessages.includes(message)) {
+        let indexOFMessage = this.errorMessages.indexOf(message);
+        this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
+        if (this.numberOfTickets === null || this.numberOfTickets === 0 || this.numberOfTickets === "") {
+          this.errorMessages.splice(indexOFMessage, 0, message);
+        }
+      }
+      else {
+        if (this.numberOfTickets === null || this.numberOfTickets === 0 || this.numberOfTickets === "") {
+          this.errorMessages.push(message);
+        }
+      }
+
+
+      message = 'Number of tickets cannot be more than available seats';
+      if (this.errorMessages.includes(message)) {
+        let indexOFMessage = this.errorMessages.indexOf(message);
+        this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage !== message);
+        if (this.numberOfTickets > this.availableSeats) {
+          this.errorMessages.splice(indexOFMessage, 0, message);
+        }
+      }
+      else {
+        if (this.numberOfTickets > this.availableSeats) {
+          this.errorMessages.push(message);
+        }
+      }
+    },
+    async submitBooking(theatre, show){
+      this.isSubmitButtonClicked = true;
+
+      this.validation();
+      if (this.errorMessages.length > 0) {
+        return;
+      }
+      const user_id = parseInt(localStorage.getItem('userId'));
+      const response = await fetch(`http://127.0.0.1:5000/user/${user_id}/theatre/${this.currentTheatre.id}/show/${this.currentShow.id}/booking_api`, {
+        method: "POST",
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          total_price: this.totalPrice,
+          number_of_tickets: this.numberOfTickets
+        })
+      }).then(async result => {
+        const data = await result.json();
+        if (result.ok) {
+          this.$store.commit('setNotification', { variant: 'success', message: data.message });
+          await this.fetchTheatres();
+        }
+        else {
+          this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
+        }
+        this.closeBookingModal();
+      })
+    }
   },
 };
 </script>
 
-<style>
+<style scoped>
 /* Add your custom styles here */
 .theatres-container {
   display: flex;
@@ -143,7 +234,7 @@ export default {
   width: 100%;
   margin: 10px;
   padding: 20px;
-  border: 1px solid #ccc;
+  border: 2px solid red;
   background-color: yellow;
 }
 
@@ -165,11 +256,22 @@ export default {
   width: calc(33.33% - 20px);
   margin: 10px;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 4px solid blue;
   background-color: greenyellow;
 }
-.shows-scroll-wrapper {
-  height: 300px; /* Set a fixed height for scrolling */
-  overflow-y: auto; /* Enable vertical scrolling */
+#user-book-error-message {
+  width: 750px;
+  margin-top: -15px;
+  border-color: black; 
+  border: 2px solid black;
 }
+
+#user-book-error-message ul {
+  color: white;
+  background-color: lightcoral;
+  padding: 10px;
+  margin: 0;
+  list-style-type: none;
+}
+
 </style>

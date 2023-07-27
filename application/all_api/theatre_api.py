@@ -142,6 +142,14 @@ class TheatreAPI(Resource):
                         show_data["ratings"].append(rating_data)
 
                     theatre_data["shows"].append(show_data)
+                
+                for booking in theatre.bookings: 
+                    booking_data = {
+                        "id": booking.id,
+                        "number_of_tickets": booking.number_of_tickets,
+                        "total_price": booking.total_price
+                    }
+                    theatre_data["bookings"].append(booking_data)
 
                 theatre_list.append(theatre_data)
 
@@ -194,11 +202,18 @@ class TheatreAPI(Resource):
                         rating_data = {
                             "id": rating.id,
                             "rating": rating.rating,
-                            # Add more fields as needed
                         }
                         show_data["ratings"].append(rating_data)
 
                     theatre_data["shows"].append(show_data)
+
+                for booking in theatre.bookings:
+                    booking_data = {
+                        "id": booking.id,
+                        "number_of_tickets": booking.number_of_tickets,
+                        "total_price": booking.total_price
+                    }
+                    theatre_data["bookings"].append(booking_data)
 
                 return make_response(jsonify(theatre_data), 200)
 
@@ -278,6 +293,14 @@ class TheatreAPI(Resource):
                 show_data["ratings"].append(rating_data)
 
             theatre_data["shows"].append(show_data)
+        for booking in theatre.bookings:  # Collect the theatre's bookings
+            booking_data = {
+                "id": booking.id,
+                "number_of_tickets": booking.number_of_tickets,
+                "total_price": booking.total_price,
+                # Add more fields as needed
+            }
+            theatre_data["bookings"].append(booking_data)
 
         return make_response(jsonify(theatre_data), 200)
     

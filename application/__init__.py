@@ -41,6 +41,7 @@ def create_app():
     from application.all_api.role_api import RoleAPI
     from application.all_api.theatre_api import TheatreAPI      
     from application.all_api.shows_api import ShowAPI
+    from application.all_api.booking_api import BookingAPI
 
     api.add_resource(LoginAPI, "/login")
     api.add_resource(SignUpAPI, "/signup")
@@ -48,10 +49,8 @@ def create_app():
     api.add_resource(TheatreAPI, "/user/<int:user_id>/theatre_api", "/user/<int:user_id>/theatre_api/<int:theatre_id>", "/theatre_api")
     api.add_resource(ShowAPI, "/user/<int:user_id>/theatre/<int:theatre_id>/show_api",
                      "/user/<int:user_id>/theatre/<int:theatre_id>/show_api/<int:show_id>")
-    # api.add_resource(UserAPI, "/api/user/<int:user_id>")
-    # api.add_resource(BlogAPI, "/api/user/<int:user_id>/blog", "/api/user/<int:user_id>/blog/<int:blog_id>", "/api/blog/<int:blog_id>")
-    
     api.add_resource(LogoutAPI, "/logout")
+    api.add_resource(BookingAPI, "/user/<int:user_id>/theatre/<int:theatre_id>/show/<int:show_id>/booking_api")
     
 
     from .Models.user import User

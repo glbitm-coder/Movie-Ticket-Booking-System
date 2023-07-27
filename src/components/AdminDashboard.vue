@@ -136,15 +136,11 @@ export default {
       return `col-${colSize}`;
     },
     chunkArray(array, size) {
-      // Helper function to split an array into chunks of given size
       const result = [];
       for (let i = 0; i < array.length; i += size) {
         result.push(array.slice(i, i + size));
       }
       return result;
-    },
-    clearNotification() {
-      this.$store.commit('clearNotification');
     },
     isTokenExpired(expiryTime, isAuthenticated) {
       if (isAuthenticated) {

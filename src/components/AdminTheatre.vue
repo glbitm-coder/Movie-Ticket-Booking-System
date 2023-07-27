@@ -224,7 +224,7 @@ export default {
 
 </script>
 
-<style>
+<style scoped>
 
 .modal-image {
   max-width: 100%;
