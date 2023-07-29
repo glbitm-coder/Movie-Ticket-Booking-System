@@ -6,6 +6,7 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 from application import db
 
 from application.Models.theatre import Theatre
+from application.decorator import admin_required
 
 from ..validation import BadRequest, BusinessValidationError, NotFoundError, UnAuthorizedError
 from ..Models.user import User
@@ -19,6 +20,7 @@ from ..Parser.theatreParser import theatre_parser
 class TheatreAPI(Resource):
 
     @jwt_required()
+    @admin_required
     def post(self, user_id = None):
 
         errorMessages = []
@@ -218,6 +220,7 @@ class TheatreAPI(Resource):
                 return make_response(jsonify(theatre_data), 200)
 
     @jwt_required()
+    @admin_required
     def put(self, user_id = None, theatre_id = None):
         
         errorMessages = []
@@ -306,6 +309,7 @@ class TheatreAPI(Resource):
     
 
     @jwt_required()
+    @admin_required
     def delete(self, user_id = None, theatre_id = None):
 
         errorMessages = []

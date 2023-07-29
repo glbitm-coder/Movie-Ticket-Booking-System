@@ -7,6 +7,7 @@ from application import db
 from application.Models.show import Show
 
 from application.Models.theatre import Theatre
+from application.decorator import admin_required
 
 from ..validation import BadRequest, BusinessValidationError, NotFoundError, UnAuthorizedError
 from ..Models.user import User
@@ -20,13 +21,10 @@ from ..Parser.showParser import show_parser
 class ShowAPI(Resource):
 
     @jwt_required()
+    @admin_required
     def post(self, user_id = None, theatre_id = None):
 
         errorMessages = []
-        current_user_id = get_jwt_identity()
-        if user_id is not None and user_id != current_user_id:
-            errorMessages.append("You are not authorized to see the page")
-            return UnAuthorizedError(error_messages=errorMessages)
         
         user = User.query.filter_by(id = user_id).first()
         if not user:
@@ -172,6 +170,7 @@ class ShowAPI(Resource):
                 return make_response(jsonify(show_data), 200)
             
     @jwt_required()
+    @admin_required
     def put(self, user_id = None, theatre_id = None, show_id = None):
 
         errorMessages = []
@@ -253,6 +252,7 @@ class ShowAPI(Resource):
         
 
     @jwt_required()
+    @admin_required
     def delete(self, user_id = None, theatre_id = None, show_id = None):
 
         errorMessages = []
