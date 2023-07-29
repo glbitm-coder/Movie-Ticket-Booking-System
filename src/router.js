@@ -3,6 +3,7 @@ import Home from './components/Home.vue'
 import Login from './components/Login.vue'
 import AdminDashboard from './components/AdminDashboard.vue'
 import UserDashboard from './components/UserDashboard.vue'
+import SearchTheatre from './components/SearchTheatre.vue'
 import store from './vuex';
 import VueRouter from 'vue-router'
 
@@ -44,6 +45,14 @@ const routes = [
       meta: {
         requiresAuth: true,
         requiresRole: 'User'
+      }
+    },
+    {
+      name : 'SearchTheatre',
+      component : SearchTheatre,
+      path : '/search/theatre',
+      meta: {
+        requiresAuth: true
       }
     }
 ];
