@@ -4,6 +4,7 @@ import Login from './components/Login.vue'
 import AdminDashboard from './components/AdminDashboard.vue'
 import UserDashboard from './components/UserDashboard.vue'
 import SearchTheatre from './components/SearchTheatre.vue'
+import SearchShow from './components/SearchShow.vue'
 import store from './vuex';
 import VueRouter from 'vue-router'
 
@@ -50,7 +51,15 @@ const routes = [
     {
       name : 'SearchTheatre',
       component : SearchTheatre,
-      path : '/search/theatre',
+      path : '/search/theatres',
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      name : 'SearchShow',
+      component : SearchShow,
+      path : '/search/shows',
       meta: {
         requiresAuth: true
       }

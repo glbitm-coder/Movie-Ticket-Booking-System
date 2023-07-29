@@ -43,6 +43,7 @@ def create_app():
     from application.all_api.shows_api import ShowAPI
     from application.all_api.booking_api import BookingAPI
     from application.all_api.search_theatre_api import SearchTheatreAPI
+    from application.all_api.search_show_api import SearchShowAPI
 
     api.add_resource(LoginAPI, "/login")
     api.add_resource(SignUpAPI, "/signup")
@@ -53,6 +54,7 @@ def create_app():
     api.add_resource(LogoutAPI, "/logout")
     api.add_resource(BookingAPI, "/user/<int:user_id>/theatre/<int:theatre_id>/show/<int:show_id>/booking_api")
     api.add_resource(SearchTheatreAPI, "/search/user/<int:user_id>/theatres")    
+    api.add_resource(SearchShowAPI, "/search/user/<int:user_id>/shows")
 
     from .Models.user import User
     from .Models.role import Role

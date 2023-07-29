@@ -5,26 +5,26 @@
       <div class="search-container">
         <h1>Search Shows</h1>
         <div class="search-input">
-          <label for="location">Location:</label>
-          <input type="text" id="location" v-model="searchLocation" />
+          <label for="tag">Tag:</label>
+          <input type="text" id="tag" v-model="searchTag" />
           <label for="name">Name:</label>
           <input type="text" id="name" v-model="searchName" />
-          <b-btn variant="primary" @click="searchTheatres">Search</b-btn>
+          <b-btn variant="primary" @click="searchShows">Search</b-btn>
         </div>
-        <!-- ... Existing search box and search button code ... -->
-  
-        <div class="theatres-container">
-    <template v-for="rowTheatres in chunkArray(theatres, 3)">
-      <div class="theatre-row">
-        <div v-for="(theatre, index) in rowTheatres" :key="index" class="theatre-item">
-          <img class="show-image" :src="getImageUrl(theatre.image)" />
-          <h2> {{theatre.name}}</h2>
-          <p>Location : {{ theatre.place }}</p>
-          <p>Capacity : {{ theatre.capacity }}</p>
+        <div class="shows-container">
+            <template v-for="rowShows in chunkArray(shows, 3)">
+            <div class="show-row">
+                <div v-for="(show, index) in rowShows" :key="index" class="show-item">
+                <h2> {{show.name}}</h2>
+                <p>Price : {{ show.price }}</p>
+                <p>Tags : {{ show.tags }}</p>
+                <p>Date : {{ show.date }}</p>
+                <p>StartTime : {{ show.startTime }}</p>
+                <p>EndTime : {{ show.endTime }}</p>
+                </div>
+            </div>
+            </template>
         </div>
-      </div>
-    </template>
-  </div>
       </div>
     </div>
   </template>
@@ -33,14 +33,14 @@
   import Home from './Home.vue'
   
   export default {
-    name: 'SearchTheatre',
+    name: 'SearchShow',
     components: {
       Home
     },
     data() {
       return {
-        theatres: [],
-        searchLocation: "",
+        shows: [],
+        searchTag: "",
         searchName: ""
       };
     },
@@ -54,12 +54,9 @@
         }
         return chunkedArr;
       },
-      getImageUrl(imagePath) {
-            return require(`../assets/images/${imagePath}`)
-        },
-      async searchTheatres() {
+      async searchShows() {
         const user_id = parseInt(localStorage.getItem('userId')); 
-        const response = await fetch(`http://127.0.0.1:5000/search/user/${user_id}/theatres?input_name=${this.searchName}&input_location=${this.searchLocation}`, {
+        const response = await fetch(`http://127.0.0.1:5000/search/user/${user_id}/shows?input_name=${this.searchName}&input_tag=${this.searchTag}`, {
         method: "GET",
         headers: {
           Authorization: 'Bearer ' + localStorage.getItem('access_token'),
@@ -68,7 +65,7 @@
       }).then(async result => {
         const data = await result.json();
         if (result.ok) {
-          this.theatres = data.theatres;
+          this.shows = data.shows;
         }
         else {
           this.$store.commit('setNotification', { variant: 'error', message: 'Something went wrong. Try again!!!' });
@@ -82,13 +79,13 @@
   <style scoped>
   /* ... Existing styles ... */
   
-  .theatre-row {
+  .show-row {
     width: 100%;
     display: flex;
     margin-bottom: 20px;
   }
   
-  .theatre-item {
+  .show-item {
     width: calc(33.33% - 10px);
     padding: 10px;
     border: 1px solid #ccc;
@@ -109,13 +106,9 @@
     margin-bottom: 20px;
   }
   
-  .theatres-container {
+  .shows-container {
     display: flex;
     flex-wrap: wrap;
-  }
-  .show-image{
-    width: 420px;
-    height: 220px;
   }
 
   /* Add more custom styles as needed */

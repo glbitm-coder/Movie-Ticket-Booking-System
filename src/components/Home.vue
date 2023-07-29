@@ -1,7 +1,7 @@
 <template>
     <nav id="home-nav" class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div id="home-search-nav" class="navbar-nav">
-            <a v-if="isAuthenticated" id="home-search-theatre" class="nav-item nav-link"><router-link to="/search/theatre">Search theatre</router-link></a>
+            <a v-if="isAuthenticated" id="home-search-theatre" class="nav-item nav-link"><router-link to="/search/theatres">Search theatre</router-link></a>
             <a v-if="isAuthenticated" id="home-search-shows" class="nav-item nav-link"><router-link to="/search/shows">Search shows</router-link></a>
         </div>
         <div class="collapse navbar-collapse justify-content-end" id="navbar">
