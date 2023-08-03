@@ -1,8 +1,11 @@
 <template>
     <div>
         <div class="d-flex justify-content-between">
-            <b-btn  variant="primary" @click="editTheatre(theatre)">Edit Theatre</b-btn>
+            <b-btn variant="primary" @click="editTheatre(theatre)">Edit Theatre</b-btn>
             <b-btn variant="danger" @click="deleteTheatre(theatre)">Delete Theatre</b-btn>
+        </div>
+        <div class="text-center">
+            <b-btn variant="success" @click="exportTheatreData(theatre)">Export Theatre Data</b-btn>
         </div>
         <b-modal id="edit-admin-theatre-modal" v-model="showEditModal" size="lg" variant="primary" no-close-on-backdrop>
             <template #modal-header>
@@ -10,13 +13,16 @@
             </template>
             <template #default>
                 <div class="form-group">
-                    <div id="admin-theatre-error-message" v-if="(errorMessages.length > 0 || serverErrorMessages.length > 0) && isEditSubmitButtonClicked" class="theatre-error-message">
+                    <div id="admin-theatre-error-message"
+                        v-if="(errorMessages.length > 0 || serverErrorMessages.length > 0) && isEditSubmitButtonClicked"
+                        class="theatre-error-message">
                         <ul>
                             <template v-if="errorMessages.length > 0">
                                 <li v-for="errorMessage in errorMessages" :key="errorMessage">{{ errorMessage }}</li>
                             </template>
                             <template v-else-if="serverErrorMessages.length > 0">
-                                <li v-for="serverErrorMessage in serverErrorMessages" :key="serverErrorMessage">{{ serverErrorMessage }}</li>
+                                <li v-for="serverErrorMessage in serverErrorMessages" :key="serverErrorMessage">{{
+                                    serverErrorMessage }}</li>
                             </template>
                         </ul>
                     </div>
@@ -42,8 +48,8 @@
                 <b-btn @click="closeEditModal">Close</b-btn>
             </template>
         </b-modal>
-        <Notification v-if="$store.state.notification" :variant="$store.state.notification.variant" 
-        :message="$store.state.notification.message" @clear-notification="clearNotification"/>
+        <Notification v-if="$store.state.notification" :variant="$store.state.notification.variant"
+            :message="$store.state.notification.message" @clear-notification="clearNotification" />
     </div>
 </template>
 
@@ -58,7 +64,7 @@ export default {
             required: true
         }
     },
-    components:{
+    components: {
         Notification
     },
     data() {
@@ -218,6 +224,65 @@ export default {
                     }
                 })
             }
+        },
+        async exportTheatreData(theatre) {
+            const user_id = parseInt(localStorage.getItem('userId'));
+            const response = await fetch(`http://127.0.0.1:5000/user/${user_id}/theatre/${theatre.id}/generate-csv`, {
+                method: "GET",
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Poll for task status every 3 seconds
+                let interval = setInterval(async () => {
+                    const statusResponse = await fetch(`http://127.0.0.1:5000/user/${user_id}/check-state/${data.Task_ID}`, {
+                        method: "GET",
+                        headers: {
+                            Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+                        }
+                    });
+
+                    if (statusResponse.ok) {
+                        const statusData = await statusResponse.json();
+
+                        if (statusData.Task_State === 'SUCCESS') {
+                            clearInterval(interval);
+
+                            // Download the CSV file using the Flask API endpoint
+                            const downloadResponse = await fetch(`http://127.0.0.1:5000/user/${user_id}/download-file`, {
+                                method: "GET",
+                                headers: {
+                                    Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+                                }
+                            });
+
+                            if (downloadResponse.ok) {
+                                // Trigger the download by creating an anchor element and clicking it
+                                const blob = await downloadResponse.blob();
+                                const url = URL.createObjectURL(blob);
+
+                                const downloadLink = document.createElement('a');
+                                downloadLink.href = url;
+                                downloadLink.download = 'data.csv';
+                                downloadLink.click();
+                                this.$store.commit('setNotification', { variant: 'success', message: 'File download' });
+                            }
+                            else {
+                                this.$store.commit('setNotification', { variant: 'error', message: 'Error downloading file: Try again!!' });
+                            }
+                        }
+                        else {
+                            this.$store.commit('setNotification', { variant: 'info', message: 'Downloading is in progress!!' });
+                        }
+                    }
+                }, 3000);
+            } else {
+                this.$store.commit('setNotification', { variant: 'error', message: 'Error in generating file: Try again!!' });
+            }
         }
     },
 }
@@ -225,27 +290,25 @@ export default {
 </script>
 
 <style scoped>
-
 .modal-image {
-  max-width: 100%;
-  max-height: 400px; /* Adjust this value as needed to fit the image within the modal */
-  margin: auto;
-  display: block;
+    max-width: 100%;
+    max-height: 400px;
+    margin: auto;
+    display: block;
 }
 
 #admin-theatre-error-message {
-  width: 750px;
-  margin-top: -15px;
-  border-color: black; 
-  border: 2px solid black;
+    width: 750px;
+    margin-top: -15px;
+    border-color: black;
+    border: 2px solid black;
 }
 
 #admin-theatre-error-message ul {
-  color: white;
-  background-color: lightcoral;
-  padding: 10px;
-  margin: 0;
-  list-style-type: none;
+    color: white;
+    background-color: lightcoral;
+    padding: 10px;
+    margin: 0;
+    list-style-type: none;
 }
-
 </style>

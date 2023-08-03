@@ -221,7 +221,6 @@ export default {
 
       message = 'Invalid image file format. Please select a valid image file';
       const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
-      console.log(this.image.name);
       const fileExtension = this.image.name.split(".").pop().toLowerCase();
       if (this.errorMessages.includes(message)) {
         if (allowedExtensions.includes(fileExtension)) {
@@ -244,7 +243,6 @@ export default {
       // Create a FormData object
       const formData = new FormData();
       formData.append('input_name', this.name);
-      console.log(this.name);
       formData.append('input_place', this.place);
       formData.append('input_capacity', this.capacity);
       formData.append('input_image', this.image);
