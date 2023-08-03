@@ -31,9 +31,6 @@ def create_app():
     jwt.token_in_blocklist_loader(check_if_token_in_blocklist)
     jwt.revoked_token_loader(revoked_token_callback)
 
-    # from .views import view
-    # from .auth import auth
-    # from .all_api.user_api  import UserAPI
 
     from application.all_api.Authentication.loginAPI import LoginAPI
     from application.all_api.Authentication.logoutAPI import LogoutAPI
@@ -44,6 +41,9 @@ def create_app():
     from application.all_api.booking_api import BookingAPI
     from application.all_api.search_theatre_api import SearchTheatreAPI
     from application.all_api.search_show_api import SearchShowAPI
+    from application.all_api.celery_tasks_api import CeleryTaskAPI
+    from application.all_api.generate_csv_api import GenerateCsvAPI
+    from application.all_api.download_csv_api import DownloadCsvAPI
 
     api.add_resource(LoginAPI, "/login")
     api.add_resource(SignUpAPI, "/signup")
@@ -55,6 +55,9 @@ def create_app():
     api.add_resource(BookingAPI, "/user/<int:user_id>/theatre/<int:theatre_id>/show/<int:show_id>/booking_api")
     api.add_resource(SearchTheatreAPI, "/search/user/<int:user_id>/theatres")    
     api.add_resource(SearchShowAPI, "/search/user/<int:user_id>/shows")
+    api.add_resource(CeleryTaskAPI, "/user/<int:user_id>/check-state/<string:task_id>")
+    api.add_resource(GenerateCsvAPI, "/user/<int:user_id>/theatre/<int:theatre_id>/generate-csv")
+    api.add_resource(DownloadCsvAPI, "/user/<int:user_id>/download-file")
 
     from .Models.user import User
     from .Models.role import Role
