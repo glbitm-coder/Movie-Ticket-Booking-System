@@ -14,7 +14,6 @@ from ..Models.user import User
 from ..Models.role import Role
 from werkzeug.security import check_password_hash
 from flask_restful import Resource, fields, marshal_with
-from ..Parser.searchTheatreParser import search_theatre_parser
 
 
 
