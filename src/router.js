@@ -5,6 +5,8 @@ import AdminDashboard from './components/AdminDashboard.vue'
 import UserDashboard from './components/UserDashboard.vue'
 import SearchTheatre from './components/SearchTheatre.vue'
 import SearchShow from './components/SearchShow.vue'
+import Bookings from './components/Bookings.vue'
+import Summary from './components/Summary.vue'
 import store from './vuex';
 import VueRouter from 'vue-router'
 
@@ -62,6 +64,24 @@ const routes = [
       path : '/search/shows',
       meta: {
         requiresAuth: true
+      }
+    },
+    {
+      name : 'Bookings',
+      component : Bookings,
+      path : '/bookings',
+      meta: {
+        requiresAuth: true,
+        requiresRole: 'User'
+      }
+    },
+    {
+      name : 'Summary',
+      component : Summary,
+      path : '/summary',
+      meta : {
+        requiresAuth : true,
+        requiresRole : 'Admin'
       }
     }
 ];

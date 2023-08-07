@@ -8,7 +8,14 @@
             <div id="home-navbar-end" class="navbar-nav">
                 <!-- <a class="nav-item nav-link"><router-link to="/feed">Feed</router-link></a> -->
                 <template v-if="isAuthenticated">
-                    <a id="home-dashboard" class="nav-item nav-link" @click="handleDashboardClick"><router-link :to="dashboardLink">Dashboard</router-link></a>
+                    <template v-if="isAdmin">
+                        <a id="home-admin-summary" class="nav-item nav-link"><router-link to="/summary">Summary</router-link></a>
+                        <a id="home-admin-dashboard" class="nav-item nav-link"><router-link to="/admin/dashboard">Dashboard</router-link></a>
+                    </template>
+                    <template v-else>
+                        <a id="home-user-bookings" class="nav-item nav-link"><router-link to="/bookings">Bookings</router-link></a>
+                        <a id="home-user-dashboard" class="nav-item nav-link"><router-link to="/user/dashboard">Dashboard</router-link></a>
+                    </template>
                     <div class="nav-item nav-link"  @click="logout" >Logout</div>
                 </template>
                 <template v-else>
@@ -56,17 +63,12 @@ export default{
             // Check if the current route is the sign up page
             return this.$route.path === '/signup';
         },
-        dashboardLink() {
+        isAdmin() {
             const role = this.$store.state.userRole;
             if (role === 'Admin') {
-                return '/admin/dashboard';
+                return true;
             }
-            else if(role === 'User'){
-                return '/user/dashboard';
-            }
-            else{
-                return '/';
-            }
+            return false;
         }
     },
     methods:{
