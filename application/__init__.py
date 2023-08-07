@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Flask, request, redirect
 from flask import render_template
 from os import path
@@ -5,8 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_cors import CORS
 from flask_restful import Resource, Api, fields, marshal_with, reqparse
-from flask_jwt_extended import JWTManager
-
+from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required, verify_jwt_in_request
 from application.validation import UnAuthorizedError
 from application.blocklist import BLOCKLIST
 
@@ -24,12 +24,13 @@ def create_app():
     app.config['CORS_SUPPORTS_CREDENTIALS'] = True
     db.init_app(app)
     api = Api(app)
-    
     jwt = JWTManager(app)
+    
     
     from application.jwt_token import check_if_token_in_blocklist, revoked_token_callback
     jwt.token_in_blocklist_loader(check_if_token_in_blocklist)
     jwt.revoked_token_loader(revoked_token_callback)
+
 
 
     from application.all_api.Authentication.loginAPI import LoginAPI
@@ -66,12 +67,18 @@ def create_app():
     from .Models.show_theatre import ShowTheatreAssociation
     from .Models.booking import Booking
     from .Models.rating import Rating
+    
+    from application.last_visited_user import update_last_visited
+    
+    @app.before_request
+    def before_request_callback():
+        excluded_endpoints = ['roleapi','loginapi', 'signupapi']
+        if request.endpoint not in excluded_endpoints:
+            update_last_visited()
 
     with app.app_context():
         create_database()
         add_initial_roles()
-
-
     return app
 
 
