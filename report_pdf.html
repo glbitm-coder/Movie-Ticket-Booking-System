@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <h2 style="text-align: center;font-size:30px;padding:10px;background-color: grey;color: white;">Your Monthly Entertainment Report:</h2>
+    <div style="font-size: 20px;">
+        <h3>🖐Hi {{ name.stored_username }}</h3>
+        <p> Here is the summary of your monthly Entertainment</p>
+        <p>
+            Total number of bookings : {{ data.total_bookings }}
+        </p>
+        <p>
+            Total number of tickets : {{ data.total_tickets  }}
+        </p>
+        <p>
+            Total number of shows seen : {{ data.total_shows_seen }}
+        </p>
+        <p>
+            Total number of theatres visited : {{ data.total_theaters_visited }}
+        </p>
+        <p>
+            Total number of ratings given : {{ name.stored_username  }}
+        </p>
+        <p>We have attached your brief monthly Entertainment Report</p>
+        <p>
+            Regards,<br/>
+            Sujeet Kumar<br>
+            Developer<br>
+            <a href="mailto:sujeetkumar200075@gmail.com">Email</a>
+        </p>
+        
+    </div>
+
+</body>
+</html>

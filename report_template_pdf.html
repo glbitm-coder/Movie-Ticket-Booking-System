@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        @page {
+            size: auto; /* Choose page size: auto, A4, Letter, etc. */
+            margin: 5mm; /* Set margins for the page */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; /* Remove default body margin */
+            padding: 0; /* Remove default body padding */
+            background-color: #f4f4f4;
+        }
+
+        .section {
+            page-break-before: always; /* Force each section to start on a new page */
+        }
+
+        .table {
+            border-collapse: collapse; /* Optional: collapse table borders */
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .table th, .table td {
+            border: 1px solid black; /* Optional: table cell borders */
+            padding: 10px;
+            text-align: left;
+            background-color: white; /* Background color for table cells */
+        }
+
+        .table th {
+            background-color: #333;
+            color: white;
+            font-size: 18px;
+        }
+
+        /* Custom header styles */
+        h2 {
+            text-align: center;
+            font-size: 30px;
+            padding: 20px;
+            background-color: #333;
+            color: white;
+            margin: 0;
+        }
+
+        /* Custom section header styles */
+        h3 {
+            background-color: #444;
+            color: white;
+            padding: 10px 20px;
+            margin: 0;
+            font-size: 20px;
+        }
+
+        /* Custom section content styles */
+        .section-content {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Custom footer styles */
+        .footer {
+            text-align: right;
+            font-size: 16px;
+            padding: 20px;
+            background-color: #333;
+            color: white;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <h2>Monthly Report</h2>
+    <div class="section-content" style="font-size: 20px;">
+        <div>We have created your monthly entertainment report based on your previous month.</div><br/><br/>
+        <div>It contains the brief details of the following:</div><br/>
+        <div>1. Details about the bookings you have done previous month</div><br/>
+        <div>2. Details about the shows seen</div><br/>
+        <div>3. Details about the theatres visited</div><br/>
+        <div>4. Details about ratings given</div>
+    </div>
+    
+    <!-- Section 1: Bookings -->
+    <div class="section">
+        <h3>Bookings</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 10%;">S No.</th>
+                    <th style="width: 15%;">Number of Tickets</th>
+                    <th style="width: 20%;">Show Name</th>
+                    <th style="width: 20%;">Theatre Name</th>
+                    <th style="width: 15%;">Total Price</th>
+                    <th style="width: 20%;">Date & Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in data.bookings %}
+                <tr>
+                    <td>{{ booking.serial_no }}</td>
+                    <td>{{ booking.number_of_tickets }}</td>
+                    <td>{{ booking.show_name }}</td>
+                    <td>{{ booking.theatre_name }}</td>
+                    <td>{{ booking.total_price }}</td>
+                    <td>{{ booking.date_time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Section 2: Shows -->
+    <div class="section">
+        <h3>Shows seen</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 10%;">S No.</th>
+                    <th style="width: 15%;">Name</th>
+                    <th style="width: 10%;">Price</th>
+                    <th style="width: 15%;">Tags</th>
+                    <th style="width: 15%;">Date</th>
+                    <th style="width: 10%;">Start Time</th>
+                    <th style="width: 15%;">End Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for show in data.shows %}
+                <tr>
+                    <td>{{ show.serial_no }}</td>
+                    <td>{{ show.storedName }}</td>
+                    <td>{{ show.storedPrice }}</td>
+                    <td>{{ show.storedTags }}</td>
+                    <td>{{ show.date }}</td>
+                    <td>{{ show.startTime }}</td>
+                    <td>{{ show.endTime }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Section 3: Theatres -->
+    <div class="section">
+        <h3>Theatres visited</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 10%;">S No.</th>
+                    <th style="width: 30%;">Name</th>
+                    <th style="width: 30%;">Place</th>
+                    <th style="width: 30%;">Capacity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for theatre in data.theatres %}
+                <tr>
+                    <td>{{ theatre.serial_no }}</td>
+                    <td>{{ theatre.storedName }}</td>
+                    <td>{{ theatre.storedPlace }}</td>
+                    <td>{{ theatre.storedCapacity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Section 4: Ratings -->
+    <div class="section">
+        <h3>Ratings given</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 10%;">S No.</th>
+                    <th style="width: 15%;">Name</th>
+                    <th style="width: 10%;">Price</th>
+                    <th style="width: 20%;">Tags</th>
+                    <th style="width: 15%;">Date</th>
+                    <th style="width: 10%;">Start Time</th>
+                    <th style="width: 15%;">End Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for show in data.shows %}
+                <tr>
+                    <td>{{ show.serial_no }}</td>
+                    <td>{{ show.storedName }}</td>
+                    <td>{{ show.storedPrice }}</td>
+                    <td>{{ show.storedTags }}</td>
+                    <td>{{ show.date }}</td>
+                    <td>{{ show.startTime }}</td>
+                    <td>{{ show.endTime }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <p class="footer">
+        Regards,<br/>
+        Sujeet Kumar<br/>
+        Developer<br/>
+        <a href="mailto:sujeetkumar200075@gmail.com">Email</a>
+    </p>
+
+</body>
+</html>
