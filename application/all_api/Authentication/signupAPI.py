@@ -55,7 +55,7 @@ class SignUpAPI(Resource):
         else:
             inputRole = Role.query.filter(Role.storedName==input_role).first()
             new_user = User(stored_email = input_email, stored_username = input_username, stored_password = generate_password_hash(input_password),
-                             stored_timestamp = datetime.datetime.now(), role_id = inputRole.id)
+                             role_id = inputRole.id)
             
             db.session.add(new_user)
             db.session.commit()

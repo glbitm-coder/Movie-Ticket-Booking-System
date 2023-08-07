@@ -74,10 +74,16 @@ class ShowAPI(Resource):
             ).first()
 
         if existing_show:
-            theatre.shows.append(existing_show)
-            db.session.commit()
-            return make_response(jsonify({
-                    "message" : "Show already created and now the show is assigned to this theatre also"
+            # Check if the existing show is associated with the same theatre
+            if existing_show in theatre.shows:
+                errorMessages.append("Show with the same details already exists in this theatre")
+                return BadRequest(error_messages=errorMessages)
+            else:
+                # If the existing show is not associated with this theatre, associate it
+                theatre.shows.append(existing_show)
+                db.session.commit()
+                return make_response(jsonify({
+                    "message": "Show already exists and is now associated with this theatre"
                 }), 201)
         else:
             # If the show does not exist, create a new show and associate it with the theatre
@@ -231,24 +237,19 @@ class ShowAPI(Resource):
                 storedTags=input_tags
             ).first()
 
-        if existing_show:
-            theatre.shows.append(existing_show)
-            db.session.delete(show)
-            db.session.commit()
-            return make_response(jsonify({
-                    "message" : "Show already created and now the show is assigned to this theatre also"
-                }), 201)
-        else:
-            show.storedName=input_name
-            show.storedPrice=input_price
-            show.date=parsed_date
-            show.startTime=parsed_start_time.time()
-            show.endTime=parsed_end_time.time()
-            show.storedTags=input_tags
-            db.session.commit()
-            return make_response(jsonify({
-                    "message" : "Show updated successfully"
-                }), 200)
+        if existing_show and existing_show != show:
+            raise BusinessValidationError(error_messages=["Show with the same details already exists"])
+
+        show.storedName = input_name
+        show.storedPrice = input_price
+        show.date = parsed_date
+        show.startTime = parsed_start_time.time()
+        show.endTime = parsed_end_time.time()
+        show.storedTags = input_tags
+        db.session.commit()
+        return make_response(jsonify({
+            "message": "Show updated successfully"
+        }), 200)
         
 
     @jwt_required()
