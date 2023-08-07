@@ -1,3 +1,4 @@
+from datetime import datetime
 from application import db
 
 
@@ -10,6 +11,8 @@ class Show(db.Model):
     date = db.Column(db.Date, nullable=False)
     startTime = db.Column(db.Time, nullable=False)
     endTime = db.Column(db.Time, nullable=False)
+    created_date_time = db.Column(db.DateTime, default=datetime.now)
+    updated_date_time = db.Column(db.DateTime, default=datetime.now)
     theatres = db.relationship('Theatre', secondary='show_theatre_association', back_populates='shows')
     createdby_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     bookings = db.relationship('Booking', backref='show', cascade="all,delete")
