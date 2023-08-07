@@ -58,3 +58,35 @@ class BookingAPI(Resource):
                     "id" : new_booking.id,
                     "message" : "Booking done successfully"
                 }), 201)
+
+    @jwt_required()
+    def get(self, user_id = None):
+
+        errorMessages = []
+        current_user_id = get_jwt_identity()
+        if user_id is not None and user_id != current_user_id:
+            errorMessages.append("You are not authorized to see the page")
+            return UnAuthorizedError(error_messages=errorMessages)
+        
+        user = User.query.filter_by(id = user_id).first()
+        if not user:
+            errorMessages.append("User not found")
+            return NotFoundError(error_messages=errorMessages)
+        
+        bookingsDto = []
+
+        user_bookings = Booking.query.filter(Booking.user_id == user_id).all()
+
+        for each_booking in user_bookings:
+            show = Show.query.filter(Show.id == each_booking.show_id).first()
+            theatre = Theatre.query.filter(Theatre.id == each_booking.theatre_id).first()
+            booking = {
+                "id": each_booking.id,
+                "totalPrice": each_booking.total_price,
+                "number_of_tickets": each_booking.number_of_tickets,
+                "show_name": show.storedName,
+                "theatre_name": theatre.storedName,  
+            }
+            bookingsDto.append(booking)
+
+        return make_response(jsonify(bookingsDto), 200)

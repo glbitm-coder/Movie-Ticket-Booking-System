@@ -53,7 +53,7 @@ def create_app():
     api.add_resource(ShowAPI, "/user/<int:user_id>/theatre/<int:theatre_id>/show_api",
                      "/user/<int:user_id>/theatre/<int:theatre_id>/show_api/<int:show_id>")
     api.add_resource(LogoutAPI, "/logout")
-    api.add_resource(BookingAPI, "/user/<int:user_id>/theatre/<int:theatre_id>/show/<int:show_id>/booking_api")
+    api.add_resource(BookingAPI, "/user/<int:user_id>/theatre/<int:theatre_id>/show/<int:show_id>/booking_api", "/user/<int:user_id>/booking_api")
     api.add_resource(SearchTheatreAPI, "/search/user/<int:user_id>/theatres")    
     api.add_resource(SearchShowAPI, "/search/user/<int:user_id>/shows")
     api.add_resource(CeleryTaskAPI, "/user/<int:user_id>/check-state/<string:task_id>")
