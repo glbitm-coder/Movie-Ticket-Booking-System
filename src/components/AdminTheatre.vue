@@ -2,12 +2,7 @@
     <div>
         <div class="d-flex justify-content-between">
             <b-btn variant="primary" @click="editTheatre(theatre)">Edit Theatre</b-btn>
-            <b-btn variant="danger" @click="deleteTheatre(theatre)">Delete Theatre</b-btn>
-        </div>
-        <div class="text-center">
-            <b-btn variant="success" @click="exportTheatreData(theatre)">Export Theatre Data</b-btn>
-        </div>
-        <b-modal id="edit-admin-theatre-modal" v-model="showEditModal" size="lg" variant="primary" no-close-on-backdrop>
+            <b-modal id="edit-admin-theatre-modal" v-model="showEditModal" size="lg" variant="primary" no-close-on-backdrop>
             <template #modal-header>
                 <h3 class="mb-0">Edit Theatre</h3>
             </template>
@@ -48,6 +43,11 @@
                 <b-btn @click="closeEditModal">Close</b-btn>
             </template>
         </b-modal>
+            <b-btn variant="danger" @click="deleteTheatre(theatre)">Delete Theatre</b-btn>
+        </div>
+        <div class="text-center">
+            <b-btn variant="success" @click="exportTheatreData(theatre)">Export Theatre Data</b-btn>
+        </div>
         <Notification v-if="$store.state.notification" :variant="$store.state.notification.variant"
             :message="$store.state.notification.message" @clear-notification="clearNotification" />
     </div>
