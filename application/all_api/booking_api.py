@@ -5,6 +5,7 @@ from flask_cors import cross_origin
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from application import db
 from application.Models.booking import Booking
+from application.Models.rating import Rating
 from application.Models.show import Show
 
 from application.Models.theatre import Theatre
@@ -80,12 +81,20 @@ class BookingAPI(Resource):
         for each_booking in user_bookings:
             show = Show.query.filter(Show.id == each_booking.show_id).first()
             theatre = Theatre.query.filter(Theatre.id == each_booking.theatre_id).first()
+            rating = Rating.query.filter(Rating.booking_id == each_booking.id).first()
+            if rating:
+                rating_given = True
+            else:
+                rating_given = False
             booking = {
                 "id": each_booking.id,
-                "totalPrice": each_booking.total_price,
+                "total_price": each_booking.total_price,
                 "number_of_tickets": each_booking.number_of_tickets,
                 "show_name": show.storedName,
+                "show_id": show.id,
+                "theatre_id":theatre.id,
                 "theatre_name": theatre.storedName,  
+                "is_rating_given": rating_given
             }
             bookingsDto.append(booking)
 

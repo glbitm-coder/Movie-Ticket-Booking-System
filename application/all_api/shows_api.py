@@ -100,6 +100,7 @@ class ShowAPI(Resource):
             db.session.add(new_show)
             db.session.commit()
             return make_response(jsonify({
+                    "id": new_show.id,
                     "message" : "Show created successfully"
                 }), 201)
         
