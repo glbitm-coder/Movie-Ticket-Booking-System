@@ -11,3 +11,4 @@ class Booking(db.Model):
     created_date_time = db.Column(db.DateTime, default=datetime.now)
     theatre_id = db.Column(db.Integer, db.ForeignKey('theatre.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    rating = db.relationship('Rating', back_populates='booking', uselist=False)

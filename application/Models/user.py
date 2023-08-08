@@ -14,3 +14,4 @@ class User(db.Model, UserMixin):
     theatres_created = db.relationship('Theatre', backref='creator', lazy='dynamic', cascade="all,delete")
     shows_created = db.relationship('Show', backref='creator', lazy='dynamic', cascade="all,delete")
     bookings = db.relationship('Booking', backref='user', lazy='dynamic', cascade="all,delete")
+    ratings = db.relationship('Rating', backref='user', lazy='dynamic', cascade="all,delete")
