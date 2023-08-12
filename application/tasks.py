@@ -7,10 +7,12 @@ from application.Models.booking import Booking
 from application.Models.show import Show
 from application.Models.theatre import Theatre
 from application.Models.user import User
+from application.Models.rating import Rating
 from application.email_send import send_email
 from application.pdf_generator import generate_pdf_report, get_entertainment_data, get_summary_entertainment_data
 from main import celery
 from flask_weasyprint import HTML
+from celery.schedules import crontab
 
 
 @celery.task()
@@ -19,7 +21,7 @@ def generate_csv(theatre_id, theatre_name, shows):
     import csv 
     time.sleep(5)
     
-    fields = ['Theatre ID', 'Theatre Name', 'Show ID', 'Show Name', 'Bookings'] 
+    fields = ['Theatre ID', 'Theatre Name', 'Show ID', 'Show Name', 'Total Tickets', 'Bookings', 'Average Rating', 'No of Ratings Given'] 
         
     current_file_path = os.path.abspath(__file__)
     project_folder_path = os.path.dirname(current_file_path)
@@ -38,8 +40,13 @@ def generate_csv(theatre_id, theatre_name, shows):
             show_name = show["storedName"]
             
             bookings = Booking.query.filter_by(theatre_id=theatre_id, show_id=show_id).all()
+            ratings = Rating.query.filter_by(theatre_id=theatre_id, show_id=show_id).all()
             total_tickets = sum(booking.number_of_tickets for booking in bookings)
-            csvwriter.writerow([theatre_id, theatre_name, show_id, show_name, total_tickets])
+            total_ratings = sum(rating.rating  for rating in ratings )
+            average_rating = 0.0
+            if len(ratings) != 0:
+                average_rating = (total_ratings / (len(ratings)))
+            csvwriter.writerow([theatre_id, theatre_name, show_id, show_name, total_tickets, len(bookings), average_rating, len(ratings)])
 
     return "Job started..."
 
@@ -47,7 +54,7 @@ def generate_csv(theatre_id, theatre_name, shows):
 @celery.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     # sender.add_periodic_task(30.0, send_email_reminder.s(), name="daily reminder")
-    sender.add_periodic_task(60.0, send_monthly_report.s(), name="monthly report")
+    sender.add_periodic_task(crontab(day_of_month='12', hour='19', minute='16'), send_monthly_report.s(), name="monthly report")
 
 
 
@@ -69,11 +76,11 @@ def send_email_reminder():
 def get_users_to_remind():
     # Calculate the datetime 24 hours ago from the current time
     last_24_hours = datetime.now() - timedelta(minutes=2)
-    print(last_24_hours)
+    
 
     # Query the database for users whose last_login is older than 24 hours
     users_to_remind = User.query.filter(User.last_visited < last_24_hours).all()
-    print(users_to_remind)
+    
 
     return users_to_remind
 

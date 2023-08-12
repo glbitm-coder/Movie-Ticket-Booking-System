@@ -46,6 +46,7 @@ def create_app():
     from application.all_api.generate_csv_api import GenerateCsvAPI
     from application.all_api.download_csv_api import DownloadCsvAPI
     from application.all_api.ratings_api import RatingsAPI
+    from application.all_api.summary_api import SummaryAPI
 
     api.add_resource(LoginAPI, "/login")
     api.add_resource(SignUpAPI, "/signup")
@@ -61,6 +62,7 @@ def create_app():
     api.add_resource(GenerateCsvAPI, "/user/<int:user_id>/theatre/<int:theatre_id>/generate-csv")
     api.add_resource(DownloadCsvAPI, "/user/<int:user_id>/download-file")
     api.add_resource(RatingsAPI, "/user/<int:user_id>/theatre/<int:theatre_id>/show/<int:show_id>/booking/<int:booking_id>/rating_api")
+    api.add_resource(SummaryAPI, "/user/<int:user_id>/theatre/<int:theatre_id>/summary_api")
 
     from .Models.user import User
     from .Models.role import Role

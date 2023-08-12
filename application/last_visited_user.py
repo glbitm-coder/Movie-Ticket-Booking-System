@@ -6,7 +6,6 @@ from application import db
 @jwt_required(optional=True)
 def update_last_visited():
     entity = verify_jwt_in_request()
-    print(entity)
     if entity is not None:
         current_user_id = get_jwt_identity()
         if current_user_id:

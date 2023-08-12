@@ -5,7 +5,9 @@ app = create_app()
 
 app.config.update(
         CELERY_BROKER_URL='redis://localhost:6379/1',
-        CELERY_RESULT_BACKEND='redis://localhost:6379/2'
+         result_backend='redis://localhost:6379/2',
+        enable_utc = False,
+        timezone = "Asia/Kolkata"
     )
 celery = make_celery(app)
 from application.tasks import *

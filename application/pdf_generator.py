@@ -22,13 +22,16 @@ def get_summary_entertainment_data(user_id):
         'total_bookings': 0,
         'total_tickets': 0,
         'total_shows_seen': 0,
-        'total_theatres_visited': 0
+        'total_theatres_visited': 0,
+        'nummber_of_ratings_given' : 0,
     }
-    user = User.query.get(user_id)
-    summary_entertainment_data["total_bookings"] = user.bookings.count()
-    summary_entertainment_data["total_tickets"] = user.bookings.with_entities(db.func.sum(Booking.number_of_tickets)).scalar() or 0
-    summary_entertainment_data["total_shows_seen"] = user.bookings.with_entities(db.func.count(Booking.show_id.distinct())).scalar() or 0
-    summary_entertainment_data["total_theaters_visited"] = user.bookings.with_entities(db.func.count(Booking.theatre_id.distinct())).scalar() or 0
+    entertainment_data =  get_entertainment_data(user_id)
+    summary_entertainment_data["total_bookings"] = len(entertainment_data["bookings"]) or 0
+    summary_entertainment_data["total_tickets"] = sum(booking["number_of_tickets"] for booking in entertainment_data["bookings"]) or 0
+    summary_entertainment_data["total_shows_seen"] = len(entertainment_data["shows"]) or 0
+    summary_entertainment_data["total_theaters_visited"] = len(entertainment_data["theatres"]) or 0
+    summary_entertainment_data["nummber_of_ratings_given"] = len(entertainment_data["ratings"]) or 0
+
     return summary_entertainment_data
 
 
@@ -71,12 +74,7 @@ def get_entertainment_data(user_id):
     for show in entertainment_data["shows"]:
         for theatre in show.theatres:
             # Check if there is any booking for this theatre made by the user in the previous month
-            if Booking.query.filter(
-                Booking.theatre_id == theatre.id,
-                Booking.user_id == user_id,
-                extract('year', Booking.created_date_time) == first_day_of_previous_month.year,
-                extract('month', Booking.created_date_time) == first_day_of_previous_month.month
-            ).first():
+            if Booking.query.filter(Booking.theatre_id == theatre.id, Booking.user_id == user_id).first():
                 theatres_to_consider.add(theatre)
 
     # Fetch distinct shows based on show_ids
@@ -90,20 +88,37 @@ def get_entertainment_data(user_id):
         entertainment_data["theatres"].append(theatre)
 
     # Fill bookings data in the entertainment_data
-    booking_serial_no = 1
-    for booking in bookings_done_by_user:
+    
+    for index, booking in enumerate(bookings_done_by_user, start=1):
         show = Show.query.get(booking.show_id)
         theatre = Theatre.query.get(booking.theatre_id)
 
         if show and theatre:
             entertainment_data["bookings"].append({
-                "serial_no": booking_serial_no,
+                "serial_no": index,
                 "number_of_tickets": booking.number_of_tickets,
                 "total_price": booking.total_price,
                 "show_name": show.storedName,
                 "theatre_name": theatre.storedName,
                 "date_time": booking.created_date_time
             })
-        booking_serial_no += 1
+
+    ratings_given_by_user = Rating.query.filter(
+        Rating.user_id == user_id,
+        extract('year', Rating.created_date_time) == first_day_of_previous_month.year,
+        extract('month', Rating.created_date_time) == first_day_of_previous_month.month
+    ).all()
+
+    for index, rating in enumerate(ratings_given_by_user, start=1):
+        show = Show.query.get(rating.show_id)
+        theatre = Theatre.query.get(rating.theatre_id)
+
+        if show and theatre:
+            entertainment_data["ratings"].append({
+                "serial_no": index,
+                "rating": rating.rating,
+                "show_name": show.storedName,
+                "theatre_name": theatre.storedName
+            })
 
     return entertainment_data
