@@ -18,3 +18,16 @@ ip:8025                                                     otherwise use this
 ~/go/bin/MailHog                                               second 
 
 sudo service redis-server stop
+
+#mailhog install
+sudo apt-get update
+
+sudo apt-get upgrade
+
+sudo apt-get -y install golang-go
+
+sudo apt-get install git
+
+go get github.com/mailhog/MailHog
+
+~/go/bin/MailHog
