@@ -174,25 +174,19 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="width: 10%;">S No.</th>
-                    <th style="width: 15%;">Name</th>
-                    <th style="width: 10%;">Price</th>
-                    <th style="width: 20%;">Tags</th>
-                    <th style="width: 15%;">Date</th>
-                    <th style="width: 10%;">Start Time</th>
-                    <th style="width: 15%;">End Time</th>
+                    <th style="width: 15%;">S No.</th>
+                    <th style="width: 25%;">Rating</th>
+                    <th style="width: 30%;">Show Name</th>
+                    <th style="width: 30%;">Theatre Name</th>
                 </tr>
             </thead>
             <tbody>
-                {% for show in data.shows %}
+                {% for rating in data.ratings %}
                 <tr>
-                    <td>{{ show.serial_no }}</td>
-                    <td>{{ show.storedName }}</td>
-                    <td>{{ show.storedPrice }}</td>
-                    <td>{{ show.storedTags }}</td>
-                    <td>{{ show.date }}</td>
-                    <td>{{ show.startTime }}</td>
-                    <td>{{ show.endTime }}</td>
+                    <td>{{ rating.serial_no }}</td>
+                    <td>{{ rating.rating }}</td>
+                    <td>{{ rating.show_name }}</td>
+                    <td>{{ rating.theatre_name }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
